@@ -145,10 +145,9 @@ TW_EXCLUDE_NANO := true
 TW_EXCLUDE_BASH := true
 TW_EXCLUDE_ZIP := true
 TW_EXCLUDE_MTP := true
-# OrangeFox extras: vanilla build skips OF-specific bloat (keeps core
-# recovery); OFOX was still 1.14MB over (34623488 > 33484800)
-OF_VANILLA_BUILD := 1
-FOX_EXCLUDE_NANO_EDITOR := 1
+# NOTE: OF_VANILLA_BUILD is obsolete in current OrangeFox (orangefox.mk:605
+# error). FOX_VANILLA_BUILD=1 is exported from vendorsetup.sh instead.
+# FOX_EXCLUDE_NANO_EDITOR also dropped (TW_EXCLUDE_NANO covers it).
 # NOTE: TW_INCLUDE_FASTBOOTD removed — recovery.img exceeded the 32MB
 # partition (34621440 > 33484800); fastbootd (~1.5MB+) is not needed for
 # FBE decrypt. Re-add only if partition size allows.

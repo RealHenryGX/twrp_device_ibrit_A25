@@ -18,3 +18,8 @@ else
     echo "A25: cannot locate Android build root, skipping OrangeFox AID_MEDIA_RW patch" >&2
 fi
 unset _a25_android_top
+
+# OrangeFox: vanilla build skips OF-specific processing bloat (recovery.img
+# was 1.14MB over the 32MB partition; OF_VANILLA_BUILD make-var is obsolete
+# in current OrangeFox, FOX_VANILLA_BUILD must be exported).
+export FOX_VANILLA_BUILD=1
