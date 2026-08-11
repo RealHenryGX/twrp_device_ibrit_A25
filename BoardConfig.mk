@@ -109,7 +109,7 @@ TW_SCREEN_BLANK_ON_BOOT := true
 # (second touchscreen; TWRP reading both mtk-tpd + axs_ts causes touch explosion).
 # NOTE: separator must be a SINGLE literal backslash-x0a in the makefile so the
 # C string "\x0a" escapes to \n (TWRP events.cpp strtok splits on "\n").
-TW_INPUT_BLACKLIST := "hbtp_vm\x0aaxs_ts"
+TW_INPUT_BLACKLIST := "hbtp_vm\\x0aaxs_ts"
 TW_USE_TOOLBOX := true
 
 # MTK USB: keep stock init.recovery.mt6765.rc configfs (musb-hdrc) ownership,
@@ -120,3 +120,13 @@ TW_EXCLUDE_DEFAULT_USB_INIT := true
 TW_USE_LEGACY_BATTERY_SERVICES := true
 # thermal_zone3 = mtktscpu (verified on device); note: /sys/devices/virtual/thermal/, not /sys/class/thermal/
 TW_CUSTOM_CPU_TEMP_PATH := "/sys/devices/virtual/thermal/thermal_zone3/temp"
+
+# FBE v2 metadata encryption (verified: ro.crypto.state=encrypted, type=file,
+# ro.crypto.metadata.encryption=metadata_encryption, /data=dm-48, inlinecrypt)
+TW_INCLUDE_CRYPTO := true
+TW_INCLUDE_CRYPTO_FBE := true
+TW_INCLUDE_FBE_METADATA_DECRYPT := true
+TW_USE_FSCRYPT_POLICY := 2
+TW_FORCE_KEYMASTER_VER := true
+TW_HAS_DATA_MEDIA := true
+TW_INCLUDE_FASTBOOTD := true
