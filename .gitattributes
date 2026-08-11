@@ -1,0 +1,7 @@
+# AOSP device tree must keep LF line endings (CRLF breaks the build)
+* text=auto eol=lf
+*.img binary
+*.bin binary
+prebuilt/kernel binary
+prebuilt/dtb.img binary
+prebuilt/dtbo.img binary
