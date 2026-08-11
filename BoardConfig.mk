@@ -106,7 +106,9 @@ TW_THEME := portrait_hdpi
 TW_EXTRA_LANGUAGES := true
 TW_SCREEN_BLANK_ON_BOOT := true
 # Blacklist both fake/non-touch input devices: hbtp_vm (stylus) and axs_ts
-# (second touchscreen; TWRP reading both mtk-tpd + axs_ts causes touch explosion)
+# (second touchscreen; TWRP reading both mtk-tpd + axs_ts causes touch explosion).
+# NOTE: separator must be a SINGLE literal backslash-x0a in the makefile so the
+# C string "\x0a" escapes to \n (TWRP events.cpp strtok splits on "\n").
 TW_INPUT_BLACKLIST := "hbtp_vm\x0aaxs_ts"
 TW_USE_TOOLBOX := true
 
