@@ -136,10 +136,15 @@ TW_HAS_DATA_MEDIA := true
 # max_brightness=255 verified on device (/sys/class/leds/lcd-backlight).
 TW_BRIGHTNESS_PATH := "/sys/class/leds/lcd-backlight/brightness"
 TW_MAX_BRIGHTNESS := 255
-# Size reduction: recovery partition is only 32MB. EXCLUDE_APEX cascades
-# MTP/TZDATA/NANO/BASH/ZIP/LPDUMP/LPTOOLS exclusion (rec/Android.mk), which
-# keeps recovery.img under the 33484800 limit (was 33986560 after fastbootd drop).
+# Size reduction: recovery partition is only 32MB. EXCLUDE_APEX removes
+# APEX support code; explicit EXCLUDE_* flags trim tzdata (~1MB), nano,
+# bash, zip, MTP (rec/Android.mk checks each independently).
 TW_EXCLUDE_APEX := true
+TW_EXCLUDE_TZDATA := true
+TW_EXCLUDE_NANO := true
+TW_EXCLUDE_BASH := true
+TW_EXCLUDE_ZIP := true
+TW_EXCLUDE_MTP := true
 # NOTE: TW_INCLUDE_FASTBOOTD removed — recovery.img exceeded the 32MB
 # partition (34621440 > 33484800); fastbootd (~1.5MB+) is not needed for
 # FBE decrypt. Re-add only if partition size allows.
