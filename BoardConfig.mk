@@ -107,3 +107,11 @@ TW_EXTRA_LANGUAGES := true
 TW_SCREEN_BLANK_ON_BOOT := true
 TW_INPUT_BLACKLIST := "hbtp_vm"
 TW_USE_TOOLBOX := true
+
+# MTK USB: keep stock init.recovery.mt6765.rc configfs (musb-hdrc) ownership,
+# prevent TWRP default USB init from fighting the gadget (fixes adb not enumerating)
+TW_EXCLUDE_DEFAULT_USB_INIT := true
+
+# MTK battery/thermal: use legacy battery services + custom cpu temp node
+TW_USE_LEGACY_BATTERY_SERVICES := true
+TW_CUSTOM_CPU_TEMP_PATH := "/sys/class/thermal/thermal_zone4/temp"
