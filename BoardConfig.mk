@@ -132,4 +132,6 @@ TW_FORCE_KEYMASTER_VER := true
 # keymaster 4.0/4.1 HALs (verified: /system/lib64/android.hardware.keymaster@4.0/4.1.so)
 OF_DEFAULT_KEYMASTER_VERSION := 4.1
 TW_HAS_DATA_MEDIA := true
-TW_INCLUDE_FASTBOOTD := true
+# NOTE: TW_INCLUDE_FASTBOOTD removed — recovery.img exceeded the 32MB
+# partition (34621440 > 33484800); fastbootd (~1.5MB+) is not needed for
+# FBE decrypt. Re-add only if partition size allows.
