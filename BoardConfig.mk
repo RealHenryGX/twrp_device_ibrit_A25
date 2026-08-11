@@ -132,6 +132,10 @@ TW_FORCE_KEYMASTER_VER := true
 # keymaster 4.0/4.1 HALs (verified: /system/lib64/android.hardware.keymaster@4.0/4.1.so)
 OF_DEFAULT_KEYMASTER_VERSION := 4.1
 TW_HAS_DATA_MEDIA := true
+# Brightness: MTK exposes LCD backlight under leds class, not backlight class.
+# max_brightness=255 verified on device (/sys/class/leds/lcd-backlight).
+TW_BRIGHTNESS_PATH := "/sys/class/leds/lcd-backlight/brightness"
+TW_MAX_BRIGHTNESS := 255
 # NOTE: TW_INCLUDE_FASTBOOTD removed — recovery.img exceeded the 32MB
 # partition (34621440 > 33484800); fastbootd (~1.5MB+) is not needed for
 # FBE decrypt. Re-add only if partition size allows.
