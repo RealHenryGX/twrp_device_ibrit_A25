@@ -105,7 +105,9 @@ PLATFORM_VERSION := 16.1.0
 TW_THEME := portrait_hdpi
 TW_EXTRA_LANGUAGES := true
 TW_SCREEN_BLANK_ON_BOOT := true
-TW_INPUT_BLACKLIST := "hbtp_vm"
+# Blacklist both fake/non-touch input devices: hbtp_vm (stylus) and axs_ts
+# (second touchscreen; TWRP reading both mtk-tpd + axs_ts causes touch explosion)
+TW_INPUT_BLACKLIST := "hbtp_vm\x0aaxs_ts"
 TW_USE_TOOLBOX := true
 
 # MTK USB: keep stock init.recovery.mt6765.rc configfs (musb-hdrc) ownership,
@@ -114,4 +116,5 @@ TW_EXCLUDE_DEFAULT_USB_INIT := true
 
 # MTK battery/thermal: use legacy battery services + custom cpu temp node
 TW_USE_LEGACY_BATTERY_SERVICES := true
-TW_CUSTOM_CPU_TEMP_PATH := "/sys/class/thermal/thermal_zone4/temp"
+# thermal_zone3 = mtktscpu (verified on device); note: /sys/devices/virtual/thermal/, not /sys/class/thermal/
+TW_CUSTOM_CPU_TEMP_PATH := "/sys/devices/virtual/thermal/thermal_zone3/temp"
