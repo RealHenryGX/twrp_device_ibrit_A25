@@ -1,10 +1,5 @@
-#
-# Copyright (C) 2026 The Android Open Source Project
-# Copyright (C) 2026 SebaUbuntu's TWRP device tree generator
-#
-# SPDX-License-Identifier: Apache-2.0
-#
-
-add_lunch_combo omni_A25-user
-add_lunch_combo omni_A25-userdebug
-add_lunch_combo omni_A25-eng
+#!/usr/bin/env bash
+# Add twrp lunch combos (vendor/twrp based, for minimal-manifest-twrp aosp twrp-12.1)
+add_lunch_combo twrp_A25-user
+add_lunch_combo twrp_A25-userdebug
+add_lunch_combo twrp_A25-eng
