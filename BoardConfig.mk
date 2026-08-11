@@ -128,5 +128,8 @@ TW_INCLUDE_CRYPTO_FBE := true
 TW_INCLUDE_FBE_METADATA_DECRYPT := true
 TW_USE_FSCRYPT_POLICY := 2
 TW_FORCE_KEYMASTER_VER := true
+# OrangeFox requires this alongside TW_FORCE_KEYMASTER_VER; device has
+# keymaster 4.0/4.1 HALs (verified: /system/lib64/android.hardware.keymaster@4.0/4.1.so)
+OF_DEFAULT_KEYMASTER_VERSION := 4.1
 TW_HAS_DATA_MEDIA := true
 TW_INCLUDE_FASTBOOTD := true
