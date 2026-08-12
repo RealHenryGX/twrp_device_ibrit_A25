@@ -111,13 +111,16 @@ TW_THEME := portrait_hdpi
 ifneq ($(FOX_VANILLA_BUILD),1)
     TW_EXTRA_LANGUAGES := true
 endif
-# Touch: DO NOT blank the screen. axs_touch re-downloads firmware on every
-# resume (axs_core.c axs_ts_resume -> axs_fw_download). Screen blank/unblank
-# cycling in recovery (TW_SCREEN_BLANK_ON_BOOT + timeout) triggered repeated
-# firmware downloads that corrupted the Y15205 chip (fw 0x0, no IRQ, dead
-# touch). Keep screen always on: no timeout, no blank. Verified on device:
-# Android (screen always on) downloads once and touch works (fw 0x7).
-TW_NO_SCREEN_TIMEOUT := true
+# Touch + screen-off: ONLY TW_NO_SCREEN_BLANK (keep timeout). Root cause of
+# dead touch was gr_fb_blank(true) on the MTK fb notifier -> tpd_suspend ->
+# axs_touch re-downloads firmware on every resume -> chip corrupted.
+# With TW_NO_SCREEN_BLANK, timeout still fires Set_Brightness("0") (screen
+# appears off, backlight off) but skips gr_fb_blank -> no fb notifier -> TP
+# never suspends -> touch stays alive; touching restores brightness
+# (resetTimerAndUnblank still runs Set_Brightness(orig)). Verified in
+# blanktimer.cpp: blank()/checkForTimeout() gate gr_fb_blank behind
+# #ifndef TW_NO_SCREEN_BLANK only. Do NOT set TW_NO_SCREEN_TIMEOUT — that
+# disables the whole timer (no screen-off at all, user complained).
 TW_NO_SCREEN_BLANK := true
 # TW_SCREEN_BLANK_ON_BOOT removed — it starts the blank cycle that kills touch.
 # Blacklist input devices: hbtp_vm (stylus) + mtk-tpd. Device exposes BOTH
@@ -131,11 +134,12 @@ TW_NO_SCREEN_BLANK := true
 TW_INPUT_BLACKLIST := "hbtp_vm\\x0amtk-tpd"
 TW_USE_TOOLBOX := true
 
-# MTK USB: DO NOT set TW_EXCLUDE_DEFAULT_USB_INIT — it makes TWRP skip
-# setting sys.usb.config=adb, so init.recovery.usb.rc's 'on property:
-# sys.usb.config=adb' never fires -> no adbd, no gadget -> USB dead
-# (observed on OFOX12/TWRP5). TWRP default init sets the prop; our
-# configfs-based usb.rc (from MT6765 CPH1909) then configures the gadget.
+# MTK USB: KEEP TW_EXCLUDE_DEFAULT_USB_INIT — verified on device:
+# OFOX12 (EXCLUDE set) had working adb; OFOX16/17 (removed) USB dead.
+# With EXCLUDE, TWRP skips its legacy android_usb init and our
+# init.recovery.usb.rc (configfs + sys.usb.config=adb + start adbd)
+# fully owns the gadget. Without it, TWRP legacy init fights configfs.
+TW_EXCLUDE_DEFAULT_USB_INIT := true
 
 # MTK battery/thermal: use legacy battery services + custom cpu temp node
 TW_USE_LEGACY_BATTERY_SERVICES := true
