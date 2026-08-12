@@ -103,7 +103,9 @@ PLATFORM_VERSION := 16.1.0
 
 # TWRP Configuration
 TW_THEME := portrait_hdpi
-TW_EXTRA_LANGUAGES := true
+# TW_EXTRA_LANGUAGES removed: OrangeFox extra-languages theme ships
+# DroidSansFallback.ttf (3.8MB) + NotoSansCJKjp (693KB) — recovery.img
+# was 1.12MB over the 32MB limit. English UI only.
 TW_SCREEN_BLANK_ON_BOOT := true
 # Blacklist both fake/non-touch input devices: hbtp_vm (stylus) and axs_ts
 # (second touchscreen; TWRP reading both mtk-tpd + axs_ts causes touch explosion).
@@ -145,6 +147,13 @@ TW_EXCLUDE_NANO := true
 TW_EXCLUDE_BASH := true
 TW_EXCLUDE_ZIP := true
 TW_EXCLUDE_MTP := true
+# More size trims: no exfat/fuse, no encrypted-backup crypto (openaes),
+# no lpdump/lptools (dynamic-partition tools not needed in recovery)
+TW_NO_EXFAT := true
+TW_NO_EXFAT_FUSE := true
+TW_EXCLUDE_ENCRYPTED_BACKUPS := true
+TW_EXCLUDE_LPDUMP := true
+TW_EXCLUDE_LPTOOLS := true
 # NOTE: OF_VANILLA_BUILD is obsolete in current OrangeFox (orangefox.mk:605
 # error). FOX_VANILLA_BUILD=1 is exported from vendorsetup.sh instead.
 # FOX_EXCLUDE_NANO_EDITOR also dropped (TW_EXCLUDE_NANO covers it).
