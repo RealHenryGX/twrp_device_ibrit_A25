@@ -54,13 +54,7 @@ TARGET_KERNEL_SOURCE := kernel/ibrit/A25
 # Kernel - prebuilt
 TARGET_FORCE_PREBUILT_KERNEL := true
 ifeq ($(TARGET_FORCE_PREBUILT_KERNEL),true)
-# Use BOOT.img kernel, NOT recovery.img kernel! Verified: boot kernel contains
-# the axs_touch driver + firmware array (AXS/Y15205 strings, 99.8% non-zero
-# density @0x297398); recovery kernel has NO axs_touch at all — so in recovery
-# the Y15205 touchchip gets no firmware -> upgrade fails -> chip dies (fw 0x0)
-# -> no touch. boot kernel is 11,002,213 bytes (13.7KB larger = the axs_touch
-# driver+fw). Same cmdline/base/tags; recovery boots fine with it.
-TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/boot-kernel
+TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/kernel
 TARGET_PREBUILT_DTB := $(DEVICE_PATH)/prebuilt/dtb.img
 BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB)
 BOARD_INCLUDE_DTB_IN_BOOTIMG := 
