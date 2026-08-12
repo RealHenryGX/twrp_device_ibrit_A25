@@ -27,22 +27,20 @@ PRODUCT_PACKAGES += \
     fscryptpolicyget.recovery
 
 # Explicitly ship keymaster/gatekeeper HAL into recovery ramdisk.
-# recovery/root/system/ subdirs are NOT auto-copied by TWRP build
-# (verified: OFOX17 ramdisk lacks them, keystore2 still crashes).
-# PRODUCT_COPY_FILES is the reliable mechanism.
+# recovery/root/system/ subdirs are NOT auto-copied by TWRP build; use
+# PRODUCT_COPY_FILES (dest maps to $(PRODUCT_OUT)/recovery/root = ramdisk).
+# NOTE: only copy files the build does NOT already provide as modules —
+# android.hardware.keymaster@3.0/4.0/4.1.so, gatekeeper@1.0.so and
+# libkeymaster4_1support.so are built by TWRP_REQUIRED_MODULES already
+# (COPYing them = "overriding commands" build error, seen OFOX18).
 PRODUCT_COPY_FILES += \
     device/ibrit/A25/recovery/root/system/bin/hw/android.hardware.keymaster@4.1-service:recovery/root/system/bin/hw/android.hardware.keymaster@4.1-service \
     device/ibrit/A25/recovery/root/system/bin/hw/android.hardware.gatekeeper@1.0-service:recovery/root/system/bin/hw/android.hardware.gatekeeper@1.0-service \
     device/ibrit/A25/recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc:recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc \
     device/ibrit/A25/recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc:recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc \
-    device/ibrit/A25/recovery/root/system/lib64/android.hardware.gatekeeper@1.0.so:recovery/root/system/lib64/android.hardware.gatekeeper@1.0.so \
-    device/ibrit/A25/recovery/root/system/lib64/android.hardware.keymaster@3.0.so:recovery/root/system/lib64/android.hardware.keymaster@3.0.so \
-    device/ibrit/A25/recovery/root/system/lib64/android.hardware.keymaster@4.0.so:recovery/root/system/lib64/android.hardware.keymaster@4.0.so \
-    device/ibrit/A25/recovery/root/system/lib64/android.hardware.keymaster@4.1.so:recovery/root/system/lib64/android.hardware.keymaster@4.1.so \
     device/ibrit/A25/recovery/root/system/lib64/libcppbor_external.so:recovery/root/system/lib64/libcppbor_external.so \
     device/ibrit/A25/recovery/root/system/lib64/libkeymaster4.so:recovery/root/system/lib64/libkeymaster4.so \
     device/ibrit/A25/recovery/root/system/lib64/libkeymaster41.so:recovery/root/system/lib64/libkeymaster41.so \
-    device/ibrit/A25/recovery/root/system/lib64/libkeymaster4_1support.so:recovery/root/system/lib64/libkeymaster4_1support.so \
     device/ibrit/A25/recovery/root/system/lib64/libkeymaster4support.so:recovery/root/system/lib64/libkeymaster4support.so \
     device/ibrit/A25/recovery/root/system/lib64/libkeymaster_messages.so:recovery/root/system/lib64/libkeymaster_messages.so \
     device/ibrit/A25/recovery/root/system/lib64/libkeymaster_portable.so:recovery/root/system/lib64/libkeymaster_portable.so \
