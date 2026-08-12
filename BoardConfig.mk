@@ -103,9 +103,10 @@ PLATFORM_VERSION := 16.1.0
 
 # TWRP Configuration
 TW_THEME := portrait_hdpi
-# TW_EXTRA_LANGUAGES removed: OrangeFox extra-languages theme ships
-# DroidSansFallback.ttf (3.8MB) + NotoSansCJKjp (693KB) — recovery.img
-# was 1.12MB over the 32MB limit. English UI only.
+# TW_EXTRA_LANGUAGES MUST stay on: removing it made TWRP GUI hang on boot
+# (font lookup fails — OFOX ships its own fonts so it survived; TWRP didn't).
+# TWRP4 with extra-languages booted fine and fit in 32MB (ramdisk 20.9MB).
+TW_EXTRA_LANGUAGES := true
 TW_SCREEN_BLANK_ON_BOOT := true
 # Blacklist input devices: hbtp_vm (stylus) + mtk-tpd. Device exposes BOTH
 # mtk-tpd (event4) and axs_ts (event3). With both active TWRP reads both ->
@@ -118,9 +119,11 @@ TW_SCREEN_BLANK_ON_BOOT := true
 TW_INPUT_BLACKLIST := "hbtp_vm\\x0amtk-tpd"
 TW_USE_TOOLBOX := true
 
-# MTK USB: keep stock init.recovery.mt6765.rc configfs (musb-hdrc) ownership,
-# prevent TWRP default USB init from fighting the gadget (fixes adb not enumerating)
-TW_EXCLUDE_DEFAULT_USB_INIT := true
+# MTK USB: DO NOT set TW_EXCLUDE_DEFAULT_USB_INIT — it makes TWRP skip
+# setting sys.usb.config=adb, so init.recovery.usb.rc's 'on property:
+# sys.usb.config=adb' never fires -> no adbd, no gadget -> USB dead
+# (observed on OFOX12/TWRP5). TWRP default init sets the prop; our
+# configfs-based usb.rc (from MT6765 CPH1909) then configures the gadget.
 
 # MTK battery/thermal: use legacy battery services + custom cpu temp node
 TW_USE_LEGACY_BATTERY_SERVICES := true
