@@ -38,7 +38,7 @@ PRODUCT_COPY_FILES += \
 # recovery/root (OFOX21 without them went to vendor/bin/hw + system/lib64).
 TARGET_RECOVERY_DEVICE_MODULES += \
     android.hardware.keymaster@4.1-service \
-    android.hardware.gatekeeper@1.0-service \
+    a25_android.hardware.gatekeeper@1.0-service \
     libkeymaster4_vendor \
     libkeymaster41_vendor \
     libkeymaster4support_vendor \
