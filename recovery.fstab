@@ -2,7 +2,12 @@
 /system_ext               ext4     system_ext                           flags=display=system_ext;logical
 /vendor                   ext4     vendor                               flags=display=vendor;logical
 /product                  ext4     product                              flags=display=product;logical
-/metadata                 ext4     /dev/block/by-name/metadata         flags=display=metadata
+# /metadata MUST point to md_udc (mmcblk0p10), NOT by-name/metadata (mmcblk0p11).
+# Verified on device: stock fstab maps /metadata -> md_udc; the running system
+# mounts mmcblk0p10 on /metadata. twrpdtgen's by-name/metadata was wrong and
+# broke FBE metadata decryption (key dir /metadata/vold/metadata_encryption
+# lives on md_udc). The md_udc symlink is the A/B alias for the same partition.
+/metadata                 ext4     /dev/block/by-name/md_udc            flags=display=metadata
 /data                     ext4     /dev/block/by-name/userdata          flags=display=data
 /cache                    ext4     /dev/block/by-name/cache             flags=display=cache
 /mnt/vendor/protect_f     ext4     /dev/block/by-name/protect1          flags=display=protect_f

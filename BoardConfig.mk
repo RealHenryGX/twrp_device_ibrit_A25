@@ -107,11 +107,15 @@ TW_THEME := portrait_hdpi
 # DroidSansFallback.ttf (3.8MB) + NotoSansCJKjp (693KB) — recovery.img
 # was 1.12MB over the 32MB limit. English UI only.
 TW_SCREEN_BLANK_ON_BOOT := true
-# Blacklist both fake/non-touch input devices: hbtp_vm (stylus) and axs_ts
-# (second touchscreen; TWRP reading both mtk-tpd + axs_ts causes touch explosion).
-# NOTE: separator must be a SINGLE literal backslash-x0a in the makefile so the
-# C string "\x0a" escapes to \n (TWRP events.cpp strtok splits on "\n").
-TW_INPUT_BLACKLIST := "hbtp_vm\\x0aaxs_ts"
+# Blacklist input devices: hbtp_vm (stylus) + mtk-tpd. Device exposes BOTH
+# mtk-tpd (event4) and axs_ts (event3). With both active TWRP reads both ->
+# touch explosion. Keeping only mtk-tpd made touch DEAD in recovery (MTK tpd
+# needs userspace firmware load that recovery lacks); axs_ts is the GSI
+# touch bridge and the working source. Separator must be a SINGLE literal
+# backslash-x0a pair as DOUBLE backslash in the makefile (JSON-safe: soong
+# variables are JSON; "\\x0a" parses to literal \x0a which C turns into \n
+# for events.cpp strtok).
+TW_INPUT_BLACKLIST := "hbtp_vm\\x0amtk-tpd"
 TW_USE_TOOLBOX := true
 
 # MTK USB: keep stock init.recovery.mt6765.rc configfs (musb-hdrc) ownership,
