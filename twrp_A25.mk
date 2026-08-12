@@ -40,10 +40,12 @@ PRODUCT_COPY_FILES += \
     device/ibrit/A25/recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc:recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc \
     device/ibrit/A25/recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc:recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc
 
-# Force the HAL modules into the RECOVERY ramdisk (not the system image):
-# cc_prebuilt_* modules normally install to system; TWRP_REQUIRED_MODULES
-# is how TWRP pulls modules into recovery/root.
-TWRP_REQUIRED_MODULES += \
+# Force the HAL modules into the RECOVERY ramdisk.
+# TARGET_RECOVERY_DEVICE_MODULES is appended to TWRP_REQUIRED_MODULES in
+# bootable/recovery/Android.mk (line 616) — the correct mechanism. Plain
+# PRODUCT_PACKAGES installs to system image only (verified: libkeymaster41
+# went to symbols/system/lib64, not recovery/root).
+TARGET_RECOVERY_DEVICE_MODULES += \
     android.hardware.keymaster@4.1-service \
     android.hardware.gatekeeper@1.0-service \
     libkeymaster4_vendor \
