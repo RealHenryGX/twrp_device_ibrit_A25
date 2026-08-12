@@ -8,9 +8,11 @@
 cc_prebuilt_binary {
     // Name prefixed to avoid collision with hardware/interfaces/keymaster/4.1/default
     // (OFOX23: "MODULE.TARGET.EXECUTABLES.android.hardware.keymaster@4.1-service
-    //  already defined"). Installed path /system/bin/hw/... unchanged (srcs basename).
+    //  already defined"). stem keeps the INSTALLED filename = original name so
+    // the .rc service path /system/bin/hw/android.hardware.keymaster@4.1-service resolves.
     name: "a25_android.hardware.keymaster@4.1-service",
     srcs: ["recovery/root/system/bin/hw/android.hardware.keymaster@4.1-service"],
+    stem: "android.hardware.keymaster@4.1-service",
     relative_install_path: "hw",
     recovery: true,
     check_elf_files: false,
@@ -35,10 +37,11 @@ cc_prebuilt_binary {
 cc_prebuilt_binary {
     // Name prefixed to avoid collision with hardware/interfaces/gatekeeper/1.0/default
     // (same module name already defined; OFOX22: "MODULE.TARGET.EXECUTABLES... already defined")
-    // The .rc references the INSTALLED path /system/bin/hw/android.hardware.gatekeeper@1.0-service,
-    // which is the srcs basename — install path unchanged by module name.
+    // stem keeps the INSTALLED filename = original name so the .rc service path
+    // /system/bin/hw/android.hardware.gatekeeper@1.0-service resolves.
     name: "a25_android.hardware.gatekeeper@1.0-service",
     srcs: ["recovery/root/system/bin/hw/android.hardware.gatekeeper@1.0-service"],
+    stem: "android.hardware.gatekeeper@1.0-service",
     relative_install_path: "hw",
     recovery: true,
     check_elf_files: false,
