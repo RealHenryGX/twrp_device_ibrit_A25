@@ -1,9 +1,60 @@
-//
-// Copyright (C) 2026 The Android Open Source Project
-// Copyright (C) 2026 SebaUbuntu's TWRP device tree generator
-//
-// SPDX-License-Identifier: Apache-2.0
-//
+// Prebuilt keymaster/gatekeeper HAL for recovery ramdisk (FBE decrypt).
+// PRODUCT_COPY_FILES rejects ELF (OFOX19: "found ELF prebuilt... use
+// cc_prebuilt_binary"). These install into the recovery ramdisk so
+// keystore2 can reach the HAL.
 
-soong_namespace {
+cc_prebuilt_binary {
+    name: "android.hardware.keymaster@4.1-service",
+    srcs: ["recovery/root/system/bin/hw/android.hardware.keymaster@4.1-service"],
+    relative_install_path: "hw",
+    check_elf_files: false,
+}
+
+cc_prebuilt_binary {
+    name: "android.hardware.gatekeeper@1.0-service",
+    srcs: ["recovery/root/system/bin/hw/android.hardware.gatekeeper@1.0-service"],
+    relative_install_path: "hw",
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "libkeymaster4_vendor",
+    srcs: ["recovery/root/system/lib64/libkeymaster4.so"],
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "libkeymaster41_vendor",
+    srcs: ["recovery/root/system/lib64/libkeymaster41.so"],
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "libkeymaster4support_vendor",
+    srcs: ["recovery/root/system/lib64/libkeymaster4support.so"],
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "libkeymaster_messages_vendor",
+    srcs: ["recovery/root/system/lib64/libkeymaster_messages.so"],
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "libkeymaster_portable_vendor",
+    srcs: ["recovery/root/system/lib64/libkeymaster_portable.so"],
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "libpuresoftkeymasterdevice_vendor",
+    srcs: ["recovery/root/system/lib64/libpuresoftkeymasterdevice.so"],
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "libcppbor_external_vendor",
+    srcs: ["recovery/root/system/lib64/libcppbor_external.so"],
+    check_elf_files: false,
 }

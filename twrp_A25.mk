@@ -24,27 +24,35 @@ PRODUCT_MANUFACTURER := ibrit
 PRODUCT_GMS_CLIENTID_BASE := android-ibrit
 
 PRODUCT_PACKAGES += \
-    fscryptpolicyget.recovery
+    fscryptpolicyget.recovery \
+    android.hardware.keymaster@4.1-service \
+    android.hardware.gatekeeper@1.0-service \
+    libkeymaster4_vendor \
+    libkeymaster41_vendor \
+    libkeymaster4support_vendor \
+    libkeymaster_messages_vendor \
+    libkeymaster_portable_vendor \
+    libpuresoftkeymasterdevice_vendor \
+    libcppbor_external_vendor
 
-# Explicitly ship keymaster/gatekeeper HAL into recovery ramdisk.
-# recovery/root/system/ subdirs are NOT auto-copied by TWRP build; use
-# PRODUCT_COPY_FILES (dest maps to $(PRODUCT_OUT)/recovery/root = ramdisk).
-# NOTE: only copy files the build does NOT already provide as modules —
-# android.hardware.keymaster@3.0/4.0/4.1.so, gatekeeper@1.0.so and
-# libkeymaster4_1support.so are built by TWRP_REQUIRED_MODULES already
-# (COPYing them = "overriding commands" build error, seen OFOX18).
+# keymaster/gatekeeper HAL rc files (non-ELF, safe for COPY_FILES)
 PRODUCT_COPY_FILES += \
-    device/ibrit/A25/recovery/root/system/bin/hw/android.hardware.keymaster@4.1-service:recovery/root/system/bin/hw/android.hardware.keymaster@4.1-service \
-    device/ibrit/A25/recovery/root/system/bin/hw/android.hardware.gatekeeper@1.0-service:recovery/root/system/bin/hw/android.hardware.gatekeeper@1.0-service \
     device/ibrit/A25/recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc:recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc \
-    device/ibrit/A25/recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc:recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc \
-    device/ibrit/A25/recovery/root/system/lib64/libcppbor_external.so:recovery/root/system/lib64/libcppbor_external.so \
-    device/ibrit/A25/recovery/root/system/lib64/libkeymaster4.so:recovery/root/system/lib64/libkeymaster4.so \
-    device/ibrit/A25/recovery/root/system/lib64/libkeymaster41.so:recovery/root/system/lib64/libkeymaster41.so \
-    device/ibrit/A25/recovery/root/system/lib64/libkeymaster4support.so:recovery/root/system/lib64/libkeymaster4support.so \
-    device/ibrit/A25/recovery/root/system/lib64/libkeymaster_messages.so:recovery/root/system/lib64/libkeymaster_messages.so \
-    device/ibrit/A25/recovery/root/system/lib64/libkeymaster_portable.so:recovery/root/system/lib64/libkeymaster_portable.so \
-    device/ibrit/A25/recovery/root/system/lib64/libpuresoftkeymasterdevice.so:recovery/root/system/lib64/libpuresoftkeymasterdevice.so
+    device/ibrit/A25/recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc:recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc
+
+# Force the HAL modules into the RECOVERY ramdisk (not the system image):
+# cc_prebuilt_* modules normally install to system; TWRP_REQUIRED_MODULES
+# is how TWRP pulls modules into recovery/root.
+TWRP_REQUIRED_MODULES += \
+    android.hardware.keymaster@4.1-service \
+    android.hardware.gatekeeper@1.0-service \
+    libkeymaster4_vendor \
+    libkeymaster41_vendor \
+    libkeymaster4support_vendor \
+    libkeymaster_messages_vendor \
+    libkeymaster_portable_vendor \
+    libpuresoftkeymasterdevice_vendor \
+    libcppbor_external_vendor
 
 PRODUCT_BUILD_PROP_OVERRIDES += \
     PRIVATE_BUILD_DESC="full_r65v3_pmz_w1a-user 12 SP1A.210812.016 mp1V15240 release-keys"
