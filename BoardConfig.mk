@@ -147,11 +147,12 @@ TW_EXCLUDE_NANO := true
 TW_EXCLUDE_BASH := true
 TW_EXCLUDE_ZIP := true
 TW_EXCLUDE_MTP := true
-# More size trims: no exfat/fuse, no encrypted-backup crypto (openaes),
-# no lpdump/lptools (dynamic-partition tools not needed in recovery)
+# More size trims: no exfat/fuse, no lpdump/lptools (dynamic-partition
+# tools not needed in recovery). NOTE: TW_EXCLUDE_ENCRYPTED_BACKUPS is NOT
+# set — OrangeFox recovery binary hard-links libopenaes (ninja: no rule to
+# make libopenaes.so.toc when excluded).
 TW_NO_EXFAT := true
 TW_NO_EXFAT_FUSE := true
-TW_EXCLUDE_ENCRYPTED_BACKUPS := true
 TW_EXCLUDE_LPDUMP := true
 TW_EXCLUDE_LPTOOLS := true
 # NOTE: OF_VANILLA_BUILD is obsolete in current OrangeFox (orangefox.mk:605
