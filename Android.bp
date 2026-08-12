@@ -1,60 +1,100 @@
 // Prebuilt keymaster/gatekeeper HAL for recovery ramdisk (FBE decrypt).
-// PRODUCT_COPY_FILES rejects ELF (OFOX19: "found ELF prebuilt... use
-// cc_prebuilt_binary"). These install into the recovery ramdisk so
-// keystore2 can reach the HAL.
+// recovery: true installs into the recovery ramdisk (not system/vendor).
+// Pattern from LineageOS/OrangeFox device trees (rodin uses the same for
+// its HAL bridges). Without recovery:true the modules went to
+// vendor/bin/hw + system/lib64 (verified in OFOX21 build log) and were
+// absent from ramdisk -> keystore2 keeps crashing.
 
 cc_prebuilt_binary {
     name: "android.hardware.keymaster@4.1-service",
     srcs: ["recovery/root/system/bin/hw/android.hardware.keymaster@4.1-service"],
     relative_install_path: "hw",
+    recovery: true,
     check_elf_files: false,
+    shared_libs: [
+        "libkeymaster4_vendor",
+        "libkeymaster41_vendor",
+        "libkeymaster4_1support_vendor",
+        "libkeymaster4support_vendor",
+        "libkeymaster_messages_vendor",
+        "libkeymaster_portable_vendor",
+        "libpuresoftkeymasterdevice_vendor",
+        "libcppbor_external_vendor",
+        "libbase",
+        "libcutils",
+        "libhardware",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+    ],
 }
 
 cc_prebuilt_binary {
     name: "android.hardware.gatekeeper@1.0-service",
     srcs: ["recovery/root/system/bin/hw/android.hardware.gatekeeper@1.0-service"],
     relative_install_path: "hw",
+    recovery: true,
     check_elf_files: false,
+    shared_libs: [
+        "libhardware",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+    ],
 }
 
 cc_prebuilt_library_shared {
     name: "libkeymaster4_vendor",
     srcs: ["recovery/root/system/lib64/libkeymaster4.so"],
+    recovery_available: true,
     check_elf_files: false,
 }
 
 cc_prebuilt_library_shared {
     name: "libkeymaster41_vendor",
     srcs: ["recovery/root/system/lib64/libkeymaster41.so"],
+    recovery_available: true,
     check_elf_files: false,
 }
 
 cc_prebuilt_library_shared {
     name: "libkeymaster4support_vendor",
     srcs: ["recovery/root/system/lib64/libkeymaster4support.so"],
+    recovery_available: true,
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "libkeymaster4_1support_vendor",
+    srcs: ["recovery/root/system/lib64/libkeymaster4_1support.so"],
+    recovery_available: true,
     check_elf_files: false,
 }
 
 cc_prebuilt_library_shared {
     name: "libkeymaster_messages_vendor",
     srcs: ["recovery/root/system/lib64/libkeymaster_messages.so"],
+    recovery_available: true,
     check_elf_files: false,
 }
 
 cc_prebuilt_library_shared {
     name: "libkeymaster_portable_vendor",
     srcs: ["recovery/root/system/lib64/libkeymaster_portable.so"],
+    recovery_available: true,
     check_elf_files: false,
 }
 
 cc_prebuilt_library_shared {
     name: "libpuresoftkeymasterdevice_vendor",
     srcs: ["recovery/root/system/lib64/libpuresoftkeymasterdevice.so"],
+    recovery_available: true,
     check_elf_files: false,
 }
 
 cc_prebuilt_library_shared {
     name: "libcppbor_external_vendor",
     srcs: ["recovery/root/system/lib64/libcppbor_external.so"],
+    recovery_available: true,
     check_elf_files: false,
 }

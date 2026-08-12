@@ -24,16 +24,7 @@ PRODUCT_MANUFACTURER := ibrit
 PRODUCT_GMS_CLIENTID_BASE := android-ibrit
 
 PRODUCT_PACKAGES += \
-    fscryptpolicyget.recovery \
-    android.hardware.keymaster@4.1-service \
-    android.hardware.gatekeeper@1.0-service \
-    libkeymaster4_vendor \
-    libkeymaster41_vendor \
-    libkeymaster4support_vendor \
-    libkeymaster_messages_vendor \
-    libkeymaster_portable_vendor \
-    libpuresoftkeymasterdevice_vendor \
-    libcppbor_external_vendor
+    fscryptpolicyget.recovery
 
 # keymaster/gatekeeper HAL rc files (non-ELF, safe for COPY_FILES)
 PRODUCT_COPY_FILES += \
@@ -42,15 +33,16 @@ PRODUCT_COPY_FILES += \
 
 # Force the HAL modules into the RECOVERY ramdisk.
 # TARGET_RECOVERY_DEVICE_MODULES is appended to TWRP_REQUIRED_MODULES in
-# bootable/recovery/Android.mk (line 616) — the correct mechanism. Plain
-# PRODUCT_PACKAGES installs to system image only (verified: libkeymaster41
-# went to symbols/system/lib64, not recovery/root).
+# bootable/recovery/Android.mk (line 616). The Android.bp modules carry
+# recovery:true / recovery_available:true so they actually install into
+# recovery/root (OFOX21 without them went to vendor/bin/hw + system/lib64).
 TARGET_RECOVERY_DEVICE_MODULES += \
     android.hardware.keymaster@4.1-service \
     android.hardware.gatekeeper@1.0-service \
     libkeymaster4_vendor \
     libkeymaster41_vendor \
     libkeymaster4support_vendor \
+    libkeymaster4_1support_vendor \
     libkeymaster_messages_vendor \
     libkeymaster_portable_vendor \
     libpuresoftkeymasterdevice_vendor \
