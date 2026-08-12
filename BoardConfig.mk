@@ -103,10 +103,14 @@ PLATFORM_VERSION := 16.1.0
 
 # TWRP Configuration
 TW_THEME := portrait_hdpi
-# TW_EXTRA_LANGUAGES MUST stay on: removing it made TWRP GUI hang on boot
-# (font lookup fails — OFOX ships its own fonts so it survived; TWRP didn't).
-# TWRP4 with extra-languages booted fine and fit in 32MB (ramdisk 20.9MB).
-TW_EXTRA_LANGUAGES := true
+# TW_EXTRA_LANGUAGES is REQUIRED for TWRP GUI (removing it hangs TWRP on boot
+# — font lookup fails). But OrangeFox ships its own fonts AND its ramdisk is
+# bigger, so extra-languages' 3.8MB CJK fonts push OFOX over the 32MB limit.
+# FOX_VANILLA_BUILD=1 is exported by vendorsetup.sh ONLY for OrangeFox builds,
+# so we can split the two builds cleanly.
+ifneq ($(FOX_VANILLA_BUILD),1)
+    TW_EXTRA_LANGUAGES := true
+endif
 TW_SCREEN_BLANK_ON_BOOT := true
 # Blacklist input devices: hbtp_vm (stylus) + mtk-tpd. Device exposes BOTH
 # mtk-tpd (event4) and axs_ts (event3). With both active TWRP reads both ->
