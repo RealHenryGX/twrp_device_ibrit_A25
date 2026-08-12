@@ -14,6 +14,10 @@
 /mnt/vendor/protect_s     ext4     /dev/block/by-name/protect2          flags=display=protect_s
 /mnt/vendor/nvdata        ext4     /dev/block/by-name/nvdata            flags=display=nvdata
 /mnt/vendor/nvcfg         ext4     /dev/block/by-name/nvcfg             flags=display=nvcfg
+# TF/SD card: explicit mount point. auto-platform-path entry didn't auto-mount
+# on this MTK device (mmc1). Device-verified: mmcblk1p1 is vfat (UUID=3BB7-0F21),
+# mounts cleanly by path. Keep the platform auto entry as fallback.
+/sdcard1                  vfat     /dev/block/mmcblk1p1                  flags=display=external_sd
 auto                      auto     /devices/platform/externdevice*      flags=display=auto
 auto                      vfat     /devices/platform/mt_usb*            flags=display=auto
 /persistent               emmc     /dev/block/by-name/frp               flags=display=persistent
