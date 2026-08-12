@@ -111,7 +111,15 @@ TW_THEME := portrait_hdpi
 ifneq ($(FOX_VANILLA_BUILD),1)
     TW_EXTRA_LANGUAGES := true
 endif
-TW_SCREEN_BLANK_ON_BOOT := true
+# Touch: DO NOT blank the screen. axs_touch re-downloads firmware on every
+# resume (axs_core.c axs_ts_resume -> axs_fw_download). Screen blank/unblank
+# cycling in recovery (TW_SCREEN_BLANK_ON_BOOT + timeout) triggered repeated
+# firmware downloads that corrupted the Y15205 chip (fw 0x0, no IRQ, dead
+# touch). Keep screen always on: no timeout, no blank. Verified on device:
+# Android (screen always on) downloads once and touch works (fw 0x7).
+TW_NO_SCREEN_TIMEOUT := true
+TW_NO_SCREEN_BLANK := true
+# TW_SCREEN_BLANK_ON_BOOT removed — it starts the blank cycle that kills touch.
 # Blacklist input devices: hbtp_vm (stylus) + mtk-tpd. Device exposes BOTH
 # mtk-tpd (event4) and axs_ts (event3). With both active TWRP reads both ->
 # touch explosion. Keeping only mtk-tpd made touch DEAD in recovery (MTK tpd
