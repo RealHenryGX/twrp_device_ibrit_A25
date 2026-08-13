@@ -1,5 +1,9 @@
+on late-init
+    start vendor.gatekeeper-1-0
+
 service vendor.gatekeeper-1-0 /system/bin/hw/android.hardware.gatekeeper@1.0-service
     interface android.hardware.gatekeeper@1.0::IGatekeeper default
-    class hal
+    class early_hal
     user system
     group system
+    seclabel u:r:recovery:s0
