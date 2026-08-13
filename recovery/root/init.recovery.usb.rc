@@ -60,31 +60,6 @@ on property:sys.usb.config=none
     write /sys/devices/platform/mt_usb/saving 0
     setprop sys.usb.state ${sys.usb.config}
 
-# Deterministic USB re-init: 'on boot' may set sys.usb.config=adb BEFORE
-# 'on fs' has created the configfs tree (g1/functions/ffs.adb...), so
-# adbd starts with no ffs dir -> gadget never enumerates (USB dead on
-# OFOX25/26; dmesg: unregister_gadget loop, devctl b_idle). late-init
-# runs after fs, so force a clean none->adb cycle here: full teardown
-# then full configfs re-link + UDC bind + adbd start, independent of
-# any earlier (mis)timed property triggers.
-on late-init
-    setprop sys.usb.config none
-    setprop sys.usb.ffs.ready 1
-    write /config/usb_gadget/g1/configs/b.1/strings/0x409/configuration "adb"
-    rm /config/usb_gadget/g1/configs/b.1/f1
-    rm /config/usb_gadget/g1/configs/b.1/f2
-    rm /config/usb_gadget/g1/configs/b.1/f3
-    rm /config/usb_gadget/g1/configs/b.1/f4
-    rm /config/usb_gadget/g1/configs/b.1/f5
-    write /sys/devices/platform/mt_usb/saving 0
-    write /config/usb_gadget/g1/idVendor 0x18d1
-    write /config/usb_gadget/g1/idProduct 0x4ee7
-    write /config/usb_gadget/g1/os_desc/use 1
-    symlink /config/usb_gadget/g1/functions/ffs.adb /config/usb_gadget/g1/configs/b.1/f1
-    write /config/usb_gadget/g1/UDC ${sys.usb.controller}
-    setprop sys.usb.config adb
-    setprop sys.usb.state ${sys.usb.config}
-
 on property:sys.usb.config=adb
     start adbd
 
