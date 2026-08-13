@@ -103,16 +103,9 @@ PLATFORM_VERSION := 16.1.0
 
 # TWRP Configuration
 TW_THEME := portrait_hdpi
-
-# OrangeFox screen config for the tiny 384x854 panel (user: layout乱).
-# OF_SCREEN_H drives status bar/center/navbar placement in data.cpp
-# (default 1920 = for 1080x1920 themes; our panel is 384x854, aspect
-# 0.4497 ~= 854/1920). OF_STATUS_H is the status bar height (default 72).
-# This fixes centering/statusbar geometry; full theme scaling is a
-# recovery-source feature (set_scale_values) not reachable from a
-# device tree, so layout stays usable-but-imperfect.
-OF_SCREEN_H := 854
-OF_STATUS_H := 40
+# OF_SCREEN_H/OF_STATUS_H were tried (854/40) — made layout WORSE on the
+# tiny panel (theme is 1080x1920-designed; mismatched geometry constants
+# break centering more than defaults). Reverted to OFOX defaults.
 # TW_EXTRA_LANGUAGES is REQUIRED for TWRP GUI (removing it hangs TWRP on boot
 # — font lookup fails). But OrangeFox ships its own fonts AND its ramdisk is
 # bigger, so extra-languages' 3.8MB CJK fonts push OFOX over the 32MB limit.

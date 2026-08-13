@@ -27,7 +27,13 @@ PRODUCT_PACKAGES += \
     fscryptpolicyget.recovery
 
 # keymaster/gatekeeper HAL rc files (non-ELF, safe for COPY_FILES)
+# ALSO: our configfs init.recovery.usb.rc! rec-Android.mk:606 only installs
+# TWRP's OWN legacy android_usb rc when TW_EXCLUDE_DEFAULT_USB_INIT != true.
+# With EXCLUDE=true (required for configfs on MTK musb), NOTHING installs a
+# usb rc — the device-tree recovery/root file is never auto-packaged
+# (verified: OFOX25/26 USB dead, no gadget init in dmesg). Ship it explicitly.
 PRODUCT_COPY_FILES += \
+    device/ibrit/A25/recovery/root/init.recovery.usb.rc:recovery/root/init.recovery.usb.rc \
     device/ibrit/A25/recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc:recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc \
     device/ibrit/A25/recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc:recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc
 
