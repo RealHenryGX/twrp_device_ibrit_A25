@@ -172,7 +172,9 @@ TW_EXCLUDE_TZDATA := true
 TW_EXCLUDE_NANO := true
 TW_EXCLUDE_BASH := true
 TW_EXCLUDE_ZIP := true
-TW_EXCLUDE_MTP := true
+# MTP ENABLED (user needs it to inspect UI/screenshots on the tiny panel).
+# 11.7MB ramdisk headroom available; libtwrpmtp-ffs + ffs.rc fit fine.
+# TW_EXCLUDE_MTP removed.
 # More size trims: no exfat/fuse, no lpdump/lptools (dynamic-partition
 # tools not needed in recovery). NOTE: TW_EXCLUDE_ENCRYPTED_BACKUPS is NOT
 # set — OrangeFox recovery binary hard-links libopenaes (ninja: no rule to
