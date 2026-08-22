@@ -27,13 +27,11 @@ PRODUCT_PACKAGES += \
     fscryptpolicyget.recovery
 
 # keymaster/gatekeeper HAL rc files (non-ELF, safe for COPY_FILES)
-# NOTE: our configfs init.recovery.usb.rc is intentionally NOT shipped.
-# OFOX12 (EXCLUDE=true, usb.rc unpackaged) had working USB; OFOX27
-# (usb.rc packaged via COPY_FILES + late-init reset) USB dead. TWRP's
-# in-code USB init owns the gadget when EXCLUDE=true; a stray configfs
-# rc only fights it (dmesg: unregister_gadget loop). Keep EXCLUDE=true
-# and DO NOT package usb.rc.
+# ALSO ship init.recovery.mt6765.rc: it forces USB device role
+# (cmode=1 + usb_role=device) before adbd — root-caused fix for dead
+# USB in recovery. Build log showed it never ships otherwise.
 PRODUCT_COPY_FILES += \
+    device/ibrit/A25/recovery/root/init.recovery.mt6765.rc:recovery/root/init.recovery.mt6765.rc \
     device/ibrit/A25/recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc:recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc \
     device/ibrit/A25/recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc:recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc
 
