@@ -172,9 +172,14 @@ TW_EXCLUDE_TZDATA := true
 TW_EXCLUDE_NANO := true
 TW_EXCLUDE_BASH := true
 TW_EXCLUDE_ZIP := true
-# MTP ENABLED (user needs it to inspect UI/screenshots on the tiny panel).
-# 11.7MB ramdisk headroom available; libtwrpmtp-ffs + ffs.rc fit fine.
-# TW_EXCLUDE_MTP removed.
+# MTP DISABLED again (OFOX29 experiment): Enable_MTP() sets
+# sys.usb.config=none then mtp,adb and writes legacy
+# /sys/class/android_usb/android0/idVendor — with EXCLUDE=true there is
+# no rc to service the prop chain and MTK uses configfs not legacy
+# android_usb, so USB died AND recovery hung (MTP thread blocked on
+# missing ffs endpoints). TWRP MTP fundamentally needs the usb.rc prop
+# chain; keep EXCLUDE=true (proven USB) => no MTP. UI inspection via
+# adb exec-out screencap instead.
 # More size trims: no exfat/fuse, no lpdump/lptools (dynamic-partition
 # tools not needed in recovery). NOTE: TW_EXCLUDE_ENCRYPTED_BACKUPS is NOT
 # set — OrangeFox recovery binary hard-links libopenaes (ninja: no rule to
