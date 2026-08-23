@@ -180,6 +180,7 @@ TW_EXCLUDE_ZIP := true
 # missing ffs endpoints). TWRP MTP fundamentally needs the usb.rc prop
 # chain; keep EXCLUDE=true (proven USB) => no MTP. UI inspection via
 # adb exec-out screencap instead.
+TW_EXCLUDE_MTP := true
 # More size trims: no exfat/fuse, no lpdump/lptools (dynamic-partition
 # tools not needed in recovery). NOTE: TW_EXCLUDE_ENCRYPTED_BACKUPS is NOT
 # set — OrangeFox recovery binary hard-links libopenaes (ninja: no rule to
