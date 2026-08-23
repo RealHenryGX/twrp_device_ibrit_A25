@@ -113,3 +113,22 @@ on property:sys.usb.ffs.ready=1 && property:sys.usb.config=mtp,adb
     symlink /config/usb_gadget/g1/functions/ffs.adb /config/usb_gadget/g1/configs/b.1/f2
     write /config/usb_gadget/g1/UDC ${sys.usb.controller}
     setprop sys.usb.state ${sys.usb.config}
+
+# Deterministic USB finalize. Startup races init's configfs setup against
+# adbd's ffs re-open (verified on device: same image enumerates OR not per
+# boot; tearing the gadget down manually kills USB permanently until reboot,
+# even re-running the bind commands — adbd's ffs endpoints are gone).
+# late-init runs after everything settles: re-link f1, re-bind UDC and
+# RESTART adbd so it re-opens ffs. This guarantees the gadget ends bound
+# regardless of who won/lost the startup race.
+on late-init
+    write /sys/devices/platform/mt_usb/saving 0
+    rm /config/usb_gadget/g1/configs/b.1/f1
+    rm /config/usb_gadget/g1/configs/b.1/f2
+    rm /config/usb_gadget/g1/configs/b.1/f3
+    rm /config/usb_gadget/g1/configs/b.1/f4
+    rm /config/usb_gadget/g1/configs/b.1/f5
+    symlink /config/usb_gadget/g1/functions/ffs.adb /config/usb_gadget/g1/configs/b.1/f1
+    write /config/usb_gadget/g1/UDC ${sys.usb.controller}
+    stop adbd
+    start adbd

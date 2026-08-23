@@ -27,13 +27,17 @@ PRODUCT_PACKAGES += \
     fscryptpolicyget.recovery
 
 # keymaster/gatekeeper HAL rc files (non-ELF, safe for COPY_FILES)
-# NOTE: init.recovery.mt6765.rc is NOT shipped. OFOX25 (unpackaged) had
-# working USB; OFOX28 (packaged, with cmode/usb_role writes + post-fs
-# exec mtk_plpath_utils) USB dead. Also: recovery is eng (ro.debuggable=1)
-# so the rc's 'on fs && ro.debuggable=0' block (where cmode lives) never
-# fires anyway. TWRP in-code USB init + EXCLUDE=true is the proven-good
-# combo — keep it exactly.
+# ALSO ship OUR configfs init.recovery.usb.rc WITH the deterministic
+# late-init finalize (re-link f1 + UDC rebind + restart adbd). Root
+# cause of intermittent USB: startup race between init's configfs setup
+# and adbd's ffs re-open — same image enumerates OR not per boot, and a
+# lost race kills USB permanently (verified by manual teardown test).
+# late-init finalize guarantees the gadget ends bound. This OVERRIDES
+# the OFOX-source usb.rc that would otherwise ship (OFOX build includes
+# its own configfs usb.rc even with EXCLUDE=true — verified on device).
+# NOTE: init.recovery.mt6765.rc is NOT shipped (never fires in eng build).
 PRODUCT_COPY_FILES += \
+    device/ibrit/A25/recovery/root/init.recovery.usb.rc:recovery/root/init.recovery.usb.rc \
     device/ibrit/A25/recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc:recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc \
     device/ibrit/A25/recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc:recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc
 
