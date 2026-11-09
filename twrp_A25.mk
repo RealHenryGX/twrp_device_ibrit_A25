@@ -25,7 +25,7 @@ PRODUCT_GMS_CLIENTID_BASE := android-ibrit
 
 PRODUCT_PACKAGES += \
     fscryptpolicyget.recovery \
-    adbd
+    adbd.recovery
 
 # keymaster/gatekeeper HAL rc files (non-ELF, safe for COPY_FILES)
 # ALSO ship OUR configfs init.recovery.usb.rc WITH the deterministic
