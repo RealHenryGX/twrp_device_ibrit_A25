@@ -69,6 +69,12 @@ on property:sys.usb.config=none
 on property:init.svc.adbd=stopped
     setprop sys.usb.ffs.ready 0
 
+# Keep ADB self-healing if adbd is killed or crashes while recovery remains
+# in the adb configuration.  The old tree only cleared ffs.ready here, which
+# left the gadget permanently unbound until the next USB configuration change.
+on property:init.svc.adbd=stopped && property:sys.usb.config=adb
+    start adbd
+
 on property:sys.usb.config=adb
     start adbd
 
