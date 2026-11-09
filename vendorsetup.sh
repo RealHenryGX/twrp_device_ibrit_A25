@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 # OrangeFox 12.1 builds break on partitionmanager.cpp: uses AID_MEDIA_RW
+# Legacy compatibility: OrangeFox 12.1 still consumes these lunch entries.
+add_lunch_combo twrp_A25-user
+add_lunch_combo twrp_A25-userdebug
+add_lunch_combo twrp_A25-eng
+
 # without including <private/android_filesystem_config.h>. Patch at lunch
 # time (workflow sources envsetup.sh which sources this file), like the
 # ZTE reference tree does for its Unisoc fixes.
