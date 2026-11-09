@@ -1,9 +1,4 @@
 #!/usr/bin/env bash
-# Legacy compatibility. AndroidProducts.mk is the authoritative lunch list.
-add_lunch_combo twrp_A25-user
-add_lunch_combo twrp_A25-userdebug
-add_lunch_combo twrp_A25-eng
-
 # OrangeFox 12.1 builds break on partitionmanager.cpp: uses AID_MEDIA_RW
 # without including <private/android_filesystem_config.h>. Patch at lunch
 # time (workflow sources envsetup.sh which sources this file), like the
