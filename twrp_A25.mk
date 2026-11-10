@@ -53,25 +53,16 @@ TARGET_RECOVERY_DEVICE_MODULES += \
     a25_android.hardware.keymaster@4.1-service \
     a25_android.hardware.gatekeeper@1.0-service \
     a25_keystore2_stock \
-    a25_stock_android_hardware_security_keymint_V1_cpp \
     a25_stock_android_hardware_security_keymint_V4_ndk \
-    a25_stock_android_system_keystore2_V1_cpp \
-    a25_stock_android_system_keystore2_V5_ndk \
     a25_stock_android_hardware_confirmationui_V1_ndk \
     a25_stock_android_hardware_security_secureclock_V1_ndk \
     a25_stock_android_hardware_security_sharedsecret_V1_ndk \
-    a25_stock_android_hardware_security_rkp_V3_ndk \
     a25_stock_android_security_compat_ndk \
-    a25_stock_lib_android_keymaster_keymint_utils \
-    a25_stock_libcppbor \
-    a25_stock_libkeymint \
-    a25_stock_libkeymint_support \
     a25_stock_libkeystore2_aaid \
     a25_stock_libkeystore2_apc_compat \
     a25_stock_libkeystore2_crypto \
     a25_stock_libkm_compat_service \
     a25_stock_libcxx \
-    a25_stock_libsqlite \
     a25_stock_libhidlbase \
     a25_stock_libbinder_ndk \
     a25_stock_libbinder \

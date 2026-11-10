@@ -14,45 +14,12 @@ cc_prebuilt_binary {
 }
 
 cc_prebuilt_library_shared {
-    name: "a25_stock_android_hardware_security_keymint_V1_cpp",
-    srcs: ["recovery/root/system/lib64/stock/android.hardware.security.keymint-V1-cpp.so"],
-    stem: "android.hardware.security.keymint-V1-cpp",
-    recovery_available: true,
-    recovery: true,
-    overrides: ["android.hardware.security.keymint-V1-cpp"],
-    relative_install_path: "stock",
-    check_elf_files: false,
-}
-
-cc_prebuilt_library_shared {
     name: "a25_stock_android_hardware_security_keymint_V4_ndk",
     srcs: ["recovery/root/system/lib64/stock/android.hardware.security.keymint-V4-ndk.so"],
     stem: "android.hardware.security.keymint-V4-ndk",
     recovery_available: true,
     recovery: true,
     overrides: ["android.hardware.security.keymint-V4-ndk"],
-    relative_install_path: "stock",
-    check_elf_files: false,
-}
-
-cc_prebuilt_library_shared {
-    name: "a25_stock_android_system_keystore2_V1_cpp",
-    srcs: ["recovery/root/system/lib64/stock/android.system.keystore2-V1-cpp.so"],
-    stem: "android.system.keystore2-V1-cpp",
-    recovery_available: true,
-    recovery: true,
-    overrides: ["android.system.keystore2-V1-cpp"],
-    relative_install_path: "stock",
-    check_elf_files: false,
-}
-
-cc_prebuilt_library_shared {
-    name: "a25_stock_android_system_keystore2_V5_ndk",
-    srcs: ["recovery/root/system/lib64/stock/android.system.keystore2-V5-ndk.so"],
-    stem: "android.system.keystore2-V5-ndk",
-    recovery_available: true,
-    recovery: true,
-    overrides: ["android.system.keystore2-V5-ndk"],
     relative_install_path: "stock",
     check_elf_files: false,
 }
@@ -91,67 +58,12 @@ cc_prebuilt_library_shared {
 }
 
 cc_prebuilt_library_shared {
-    name: "a25_stock_android_hardware_security_rkp_V3_ndk",
-    srcs: ["recovery/root/system/lib64/stock/android.hardware.security.rkp-V3-ndk.so"],
-    stem: "android.hardware.security.rkp-V3-ndk",
-    recovery_available: true,
-    recovery: true,
-    overrides: ["android.hardware.security.rkp-V3-ndk"],
-    relative_install_path: "stock",
-    check_elf_files: false,
-}
-
-cc_prebuilt_library_shared {
     name: "a25_stock_android_security_compat_ndk",
     srcs: ["recovery/root/system/lib64/stock/android.security.compat-ndk.so"],
     stem: "android.security.compat-ndk",
     recovery_available: true,
     recovery: true,
     overrides: ["android.security.compat-ndk"],
-    relative_install_path: "stock",
-    check_elf_files: false,
-}
-
-cc_prebuilt_library_shared {
-    name: "a25_stock_lib_android_keymaster_keymint_utils",
-    srcs: ["recovery/root/system/lib64/stock/lib_android_keymaster_keymint_utils.so"],
-    stem: "lib_android_keymaster_keymint_utils",
-    recovery_available: true,
-    recovery: true,
-    overrides: ["lib_android_keymaster_keymint_utils"],
-    relative_install_path: "stock",
-    check_elf_files: false,
-}
-
-cc_prebuilt_library_shared {
-    name: "a25_stock_libcppbor",
-    srcs: ["recovery/root/system/lib64/stock/libcppbor.so"],
-    stem: "libcppbor",
-    recovery_available: true,
-    recovery: true,
-    overrides: ["libcppbor"],
-    relative_install_path: "stock",
-    check_elf_files: false,
-}
-
-cc_prebuilt_library_shared {
-    name: "a25_stock_libkeymint",
-    srcs: ["recovery/root/system/lib64/stock/libkeymint.so"],
-    stem: "libkeymint",
-    recovery_available: true,
-    recovery: true,
-    overrides: ["libkeymint"],
-    relative_install_path: "stock",
-    check_elf_files: false,
-}
-
-cc_prebuilt_library_shared {
-    name: "a25_stock_libkeymint_support",
-    srcs: ["recovery/root/system/lib64/stock/libkeymint_support.so"],
-    stem: "libkeymint_support",
-    recovery_available: true,
-    recovery: true,
-    overrides: ["libkeymint_support"],
     relative_install_path: "stock",
     check_elf_files: false,
 }
@@ -207,17 +119,6 @@ cc_prebuilt_library_shared {
     recovery_available: true,
     recovery: true,
     overrides: ["libc++"],
-    relative_install_path: "stock",
-    check_elf_files: false,
-}
-
-cc_prebuilt_library_shared {
-    name: "a25_stock_libsqlite",
-    srcs: ["recovery/root/system/lib64/stock/libsqlite.so"],
-    stem: "libsqlite",
-    recovery_available: true,
-    recovery: true,
-    overrides: ["libsqlite"],
     relative_install_path: "stock",
     check_elf_files: false,
 }
