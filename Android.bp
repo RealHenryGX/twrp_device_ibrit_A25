@@ -6,6 +6,198 @@
 // absent from ramdisk -> keystore2 keeps crashing.
 
 cc_prebuilt_binary {
+    name: "a25_keystore2_stock",
+    srcs: ["recovery/root/system/bin/keystore2"],
+    stem: "keystore2",
+    recovery: true,
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "a25_stock_android_hardware_security_keymint_V1_cpp",
+    srcs: ["recovery/root/system/lib64/stock/android.hardware.security.keymint-V1-cpp.so"],
+    stem: "android.hardware.security.keymint-V1-cpp",
+    recovery_available: true,
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "a25_stock_android_hardware_security_keymint_V4_ndk",
+    srcs: ["recovery/root/system/lib64/stock/android.hardware.security.keymint-V4-ndk.so"],
+    stem: "android.hardware.security.keymint-V4-ndk",
+    recovery_available: true,
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "a25_stock_android_system_keystore2_V1_cpp",
+    srcs: ["recovery/root/system/lib64/stock/android.system.keystore2-V1-cpp.so"],
+    stem: "android.system.keystore2-V1-cpp",
+    recovery_available: true,
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "a25_stock_android_system_keystore2_V5_ndk",
+    srcs: ["recovery/root/system/lib64/stock/android.system.keystore2-V5-ndk.so"],
+    stem: "android.system.keystore2-V5-ndk",
+    recovery_available: true,
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "a25_stock_android_hardware_confirmationui_V1_ndk",
+    srcs: ["recovery/root/system/lib64/stock/android.hardware.confirmationui-V1-ndk.so"],
+    stem: "android.hardware.confirmationui-V1-ndk",
+    recovery_available: true,
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "a25_stock_android_hardware_security_secureclock_V1_ndk",
+    srcs: ["recovery/root/system/lib64/stock/android.hardware.security.secureclock-V1-ndk.so"],
+    stem: "android.hardware.security.secureclock-V1-ndk",
+    recovery_available: true,
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "a25_stock_android_hardware_security_sharedsecret_V1_ndk",
+    srcs: ["recovery/root/system/lib64/stock/android.hardware.security.sharedsecret-V1-ndk.so"],
+    stem: "android.hardware.security.sharedsecret-V1-ndk",
+    recovery_available: true,
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "a25_stock_android_hardware_security_rkp_V3_ndk",
+    srcs: ["recovery/root/system/lib64/stock/android.hardware.security.rkp-V3-ndk.so"],
+    stem: "android.hardware.security.rkp-V3-ndk",
+    recovery_available: true,
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "a25_stock_android_security_compat_ndk",
+    srcs: ["recovery/root/system/lib64/stock/android.security.compat-ndk.so"],
+    stem: "android.security.compat-ndk",
+    recovery_available: true,
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "a25_stock_lib_android_keymaster_keymint_utils",
+    srcs: ["recovery/root/system/lib64/stock/lib_android_keymaster_keymint_utils.so"],
+    stem: "lib_android_keymaster_keymint_utils",
+    recovery_available: true,
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "a25_stock_libcppbor",
+    srcs: ["recovery/root/system/lib64/stock/libcppbor.so"],
+    stem: "libcppbor",
+    recovery_available: true,
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "a25_stock_libkeymint",
+    srcs: ["recovery/root/system/lib64/stock/libkeymint.so"],
+    stem: "libkeymint",
+    recovery_available: true,
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "a25_stock_libkeymint_support",
+    srcs: ["recovery/root/system/lib64/stock/libkeymint_support.so"],
+    stem: "libkeymint_support",
+    recovery_available: true,
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "a25_stock_libkeystore2_aaid",
+    srcs: ["recovery/root/system/lib64/stock/libkeystore2_aaid.so"],
+    stem: "libkeystore2_aaid",
+    recovery_available: true,
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "a25_stock_libkeystore2_apc_compat",
+    srcs: ["recovery/root/system/lib64/stock/libkeystore2_apc_compat.so"],
+    stem: "libkeystore2_apc_compat",
+    recovery_available: true,
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "a25_stock_libkeystore2_crypto",
+    srcs: ["recovery/root/system/lib64/stock/libkeystore2_crypto.so"],
+    stem: "libkeystore2_crypto",
+    recovery_available: true,
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "a25_stock_libkm_compat_service",
+    srcs: ["recovery/root/system/lib64/stock/libkm_compat_service.so"],
+    stem: "libkm_compat_service",
+    recovery_available: true,
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "a25_stock_libcxx",
+    srcs: ["recovery/root/system/lib64/stock/libc++.so"],
+    stem: "libc++",
+    recovery_available: true,
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "a25_stock_libsqlite",
+    srcs: ["recovery/root/system/lib64/stock/libsqlite.so"],
+    stem: "libsqlite",
+    recovery_available: true,
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "a25_stock_libhidlbase",
+    srcs: ["recovery/root/system/lib64/stock/libhidlbase.so"],
+    stem: "libhidlbase",
+    recovery_available: true,
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "a25_stock_libbinder_ndk",
+    srcs: ["recovery/root/system/lib64/stock/libbinder_ndk.so"],
+    stem: "libbinder_ndk",
+    recovery_available: true,
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "a25_stock_libbinder",
+    srcs: ["recovery/root/system/lib64/stock/libbinder.so"],
+    stem: "libbinder",
+    recovery_available: true,
+    check_elf_files: false,
+}
+
+cc_prebuilt_library_shared {
+    name: "a25_stock_libapexsupport",
+    srcs: ["recovery/root/system/lib64/stock/libapexsupport.so"],
+    stem: "libapexsupport",
+    recovery_available: true,
+    check_elf_files: false,
+}
+
+cc_prebuilt_binary {
     // Name prefixed to avoid collision with hardware/interfaces/keymaster/4.1/default
     // (OFOX23: "MODULE.TARGET.EXECUTABLES.android.hardware.keymaster@4.1-service
     //  already defined"). stem keeps the INSTALLED filename = original name so

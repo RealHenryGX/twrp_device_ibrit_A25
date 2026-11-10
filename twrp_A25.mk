@@ -41,23 +41,6 @@ PRODUCT_PACKAGES += \
 PRODUCT_COPY_FILES += \
     device/ibrit/A25/recovery/root/init.recovery.usb.rc:recovery/root/init.recovery.usb.rc \
     device/ibrit/A25/recovery/root/init.recovery.mt6765.rc:recovery/root/init.recovery.mt6765.rc \
-    device/ibrit/A25/recovery/root/system/bin/keystore2:recovery/root/system/bin/keystore2 \
-    device/ibrit/A25/recovery/root/system/lib64/android.hardware.security.keymint-V1-cpp.so:recovery/root/system/lib64/android.hardware.security.keymint-V1-cpp.so \
-    device/ibrit/A25/recovery/root/system/lib64/android.hardware.security.keymint-V4-ndk.so:recovery/root/system/lib64/android.hardware.security.keymint-V4-ndk.so \
-    device/ibrit/A25/recovery/root/system/lib64/android.system.keystore2-V1-cpp.so:recovery/root/system/lib64/android.system.keystore2-V1-cpp.so \
-    device/ibrit/A25/recovery/root/system/lib64/android.system.keystore2-V5-ndk.so:recovery/root/system/lib64/android.system.keystore2-V5-ndk.so \
-    device/ibrit/A25/recovery/root/system/lib64/lib_android_keymaster_keymint_utils.so:recovery/root/system/lib64/lib_android_keymaster_keymint_utils.so \
-    device/ibrit/A25/recovery/root/system/lib64/libcppbor.so:recovery/root/system/lib64/libcppbor.so \
-    device/ibrit/A25/recovery/root/system/lib64/libkeymaster4_1support.so:recovery/root/system/lib64/libkeymaster4_1support.so \
-    device/ibrit/A25/recovery/root/system/lib64/libkeymaster4support.so:recovery/root/system/lib64/libkeymaster4support.so \
-    device/ibrit/A25/recovery/root/system/lib64/libkeymaster_messages.so:recovery/root/system/lib64/libkeymaster_messages.so \
-    device/ibrit/A25/recovery/root/system/lib64/libkeymaster_portable.so:recovery/root/system/lib64/libkeymaster_portable.so \
-    device/ibrit/A25/recovery/root/system/lib64/libkeymint.so:recovery/root/system/lib64/libkeymint.so \
-    device/ibrit/A25/recovery/root/system/lib64/libkeymint_support.so:recovery/root/system/lib64/libkeymint_support.so \
-    device/ibrit/A25/recovery/root/system/lib64/libkeystore2_aaid.so:recovery/root/system/lib64/libkeystore2_aaid.so \
-    device/ibrit/A25/recovery/root/system/lib64/libkeystore2_apc_compat.so:recovery/root/system/lib64/libkeystore2_apc_compat.so \
-    device/ibrit/A25/recovery/root/system/lib64/libkeystore2_crypto.so:recovery/root/system/lib64/libkeystore2_crypto.so \
-    device/ibrit/A25/recovery/root/system/lib64/libpuresoftkeymasterdevice.so:recovery/root/system/lib64/libpuresoftkeymasterdevice.so \
     device/ibrit/A25/recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc:recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc \
     device/ibrit/A25/recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc:recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc
 
@@ -69,6 +52,30 @@ PRODUCT_COPY_FILES += \
 TARGET_RECOVERY_DEVICE_MODULES += \
     a25_android.hardware.keymaster@4.1-service \
     a25_android.hardware.gatekeeper@1.0-service \
+    a25_keystore2_stock \
+    a25_stock_android_hardware_security_keymint_V1_cpp \
+    a25_stock_android_hardware_security_keymint_V4_ndk \
+    a25_stock_android_system_keystore2_V1_cpp \
+    a25_stock_android_system_keystore2_V5_ndk \
+    a25_stock_android_hardware_confirmationui_V1_ndk \
+    a25_stock_android_hardware_security_secureclock_V1_ndk \
+    a25_stock_android_hardware_security_sharedsecret_V1_ndk \
+    a25_stock_android_hardware_security_rkp_V3_ndk \
+    a25_stock_android_security_compat_ndk \
+    a25_stock_lib_android_keymaster_keymint_utils \
+    a25_stock_libcppbor \
+    a25_stock_libkeymint \
+    a25_stock_libkeymint_support \
+    a25_stock_libkeystore2_aaid \
+    a25_stock_libkeystore2_apc_compat \
+    a25_stock_libkeystore2_crypto \
+    a25_stock_libkm_compat_service \
+    a25_stock_libcxx \
+    a25_stock_libsqlite \
+    a25_stock_libhidlbase \
+    a25_stock_libbinder_ndk \
+    a25_stock_libbinder \
+    a25_stock_libapexsupport \
     libkeymaster4_vendor \
     libkeymaster41_vendor \
     libkeymaster4support_vendor \
