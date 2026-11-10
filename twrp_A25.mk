@@ -54,6 +54,7 @@ TARGET_RECOVERY_DEVICE_MODULES += \
     a25_android.hardware.gatekeeper@1.0-service \
     a25_keystore2_stock \
     a25_stock_android_hardware_confirmationui_V1_ndk \
+    a25_stock_libbinder_ndk \
     a25_stock_android_hardware_security_secureclock_V1_ndk \
     a25_stock_android_hardware_security_sharedsecret_V1_ndk \
     a25_stock_android_security_compat_ndk \
