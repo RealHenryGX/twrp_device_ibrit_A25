@@ -18,6 +18,7 @@ cc_prebuilt_library_shared {
     srcs: ["recovery/root/system/lib64/stock/android.hardware.security.keymint-V1-cpp.so"],
     stem: "android.hardware.security.keymint-V1-cpp",
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -26,6 +27,7 @@ cc_prebuilt_library_shared {
     srcs: ["recovery/root/system/lib64/stock/android.hardware.security.keymint-V4-ndk.so"],
     stem: "android.hardware.security.keymint-V4-ndk",
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -34,6 +36,7 @@ cc_prebuilt_library_shared {
     srcs: ["recovery/root/system/lib64/stock/android.system.keystore2-V1-cpp.so"],
     stem: "android.system.keystore2-V1-cpp",
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -42,6 +45,7 @@ cc_prebuilt_library_shared {
     srcs: ["recovery/root/system/lib64/stock/android.system.keystore2-V5-ndk.so"],
     stem: "android.system.keystore2-V5-ndk",
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -50,6 +54,7 @@ cc_prebuilt_library_shared {
     srcs: ["recovery/root/system/lib64/stock/android.hardware.confirmationui-V1-ndk.so"],
     stem: "android.hardware.confirmationui-V1-ndk",
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -58,6 +63,7 @@ cc_prebuilt_library_shared {
     srcs: ["recovery/root/system/lib64/stock/android.hardware.security.secureclock-V1-ndk.so"],
     stem: "android.hardware.security.secureclock-V1-ndk",
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -66,6 +72,7 @@ cc_prebuilt_library_shared {
     srcs: ["recovery/root/system/lib64/stock/android.hardware.security.sharedsecret-V1-ndk.so"],
     stem: "android.hardware.security.sharedsecret-V1-ndk",
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -74,6 +81,7 @@ cc_prebuilt_library_shared {
     srcs: ["recovery/root/system/lib64/stock/android.hardware.security.rkp-V3-ndk.so"],
     stem: "android.hardware.security.rkp-V3-ndk",
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -82,6 +90,7 @@ cc_prebuilt_library_shared {
     srcs: ["recovery/root/system/lib64/stock/android.security.compat-ndk.so"],
     stem: "android.security.compat-ndk",
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -90,6 +99,7 @@ cc_prebuilt_library_shared {
     srcs: ["recovery/root/system/lib64/stock/lib_android_keymaster_keymint_utils.so"],
     stem: "lib_android_keymaster_keymint_utils",
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -98,6 +108,7 @@ cc_prebuilt_library_shared {
     srcs: ["recovery/root/system/lib64/stock/libcppbor.so"],
     stem: "libcppbor",
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -106,6 +117,7 @@ cc_prebuilt_library_shared {
     srcs: ["recovery/root/system/lib64/stock/libkeymint.so"],
     stem: "libkeymint",
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -114,6 +126,7 @@ cc_prebuilt_library_shared {
     srcs: ["recovery/root/system/lib64/stock/libkeymint_support.so"],
     stem: "libkeymint_support",
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -122,6 +135,7 @@ cc_prebuilt_library_shared {
     srcs: ["recovery/root/system/lib64/stock/libkeystore2_aaid.so"],
     stem: "libkeystore2_aaid",
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -130,6 +144,7 @@ cc_prebuilt_library_shared {
     srcs: ["recovery/root/system/lib64/stock/libkeystore2_apc_compat.so"],
     stem: "libkeystore2_apc_compat",
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -138,6 +153,7 @@ cc_prebuilt_library_shared {
     srcs: ["recovery/root/system/lib64/stock/libkeystore2_crypto.so"],
     stem: "libkeystore2_crypto",
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -146,6 +162,7 @@ cc_prebuilt_library_shared {
     srcs: ["recovery/root/system/lib64/stock/libkm_compat_service.so"],
     stem: "libkm_compat_service",
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -154,6 +171,7 @@ cc_prebuilt_library_shared {
     srcs: ["recovery/root/system/lib64/stock/libc++.so"],
     stem: "libc++",
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -162,6 +180,7 @@ cc_prebuilt_library_shared {
     srcs: ["recovery/root/system/lib64/stock/libsqlite.so"],
     stem: "libsqlite",
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -170,6 +189,7 @@ cc_prebuilt_library_shared {
     srcs: ["recovery/root/system/lib64/stock/libhidlbase.so"],
     stem: "libhidlbase",
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -178,6 +198,7 @@ cc_prebuilt_library_shared {
     srcs: ["recovery/root/system/lib64/stock/libbinder_ndk.so"],
     stem: "libbinder_ndk",
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -186,6 +207,7 @@ cc_prebuilt_library_shared {
     srcs: ["recovery/root/system/lib64/stock/libbinder.so"],
     stem: "libbinder",
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -194,6 +216,7 @@ cc_prebuilt_library_shared {
     srcs: ["recovery/root/system/lib64/stock/libapexsupport.so"],
     stem: "libapexsupport",
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -249,6 +272,7 @@ cc_prebuilt_library_shared {
     name: "libkeymaster4_vendor",
     srcs: ["recovery/root/system/lib64/libkeymaster4.so"],
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -256,6 +280,7 @@ cc_prebuilt_library_shared {
     name: "libkeymaster41_vendor",
     srcs: ["recovery/root/system/lib64/libkeymaster41.so"],
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -263,6 +288,7 @@ cc_prebuilt_library_shared {
     name: "libkeymaster4support_vendor",
     srcs: ["recovery/root/system/lib64/libkeymaster4support.so"],
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -270,6 +296,7 @@ cc_prebuilt_library_shared {
     name: "libkeymaster4_1support_vendor",
     srcs: ["recovery/root/system/lib64/libkeymaster4_1support.so"],
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -277,6 +304,7 @@ cc_prebuilt_library_shared {
     name: "libkeymaster_messages_vendor",
     srcs: ["recovery/root/system/lib64/libkeymaster_messages.so"],
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -284,6 +312,7 @@ cc_prebuilt_library_shared {
     name: "libkeymaster_portable_vendor",
     srcs: ["recovery/root/system/lib64/libkeymaster_portable.so"],
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -291,6 +320,7 @@ cc_prebuilt_library_shared {
     name: "libpuresoftkeymasterdevice_vendor",
     srcs: ["recovery/root/system/lib64/libpuresoftkeymasterdevice.so"],
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
 
@@ -298,5 +328,6 @@ cc_prebuilt_library_shared {
     name: "libcppbor_external_vendor",
     srcs: ["recovery/root/system/lib64/libcppbor_external.so"],
     recovery_available: true,
+    recovery: true,
     check_elf_files: false,
 }
