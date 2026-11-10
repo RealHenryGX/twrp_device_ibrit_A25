@@ -3,6 +3,14 @@ on init
     setprop sys.usb.controller "musb-hdrc"
     setprop sys.usb.ffs.aio_compat 1
 
+on fs
+    # Keymaster/Gatekeeper are vendor HALs. Recovery has its own /system
+    # tree, so expose the read-only vendor partition before starting them.
+    mkdir /vendor 0755 root root
+    mount ext4 /dev/block/by-name/vendor /vendor ro
+    start vendor.keymaster-4-1
+    start vendor.gatekeeper-1-0
+
 on fs && property:ro.debuggable=0
     # NOTE: this block never fires in TWRP (eng build, ro.debuggable=1).
     # Kept verbatim from stock for reference. USB is owned by TWRP's

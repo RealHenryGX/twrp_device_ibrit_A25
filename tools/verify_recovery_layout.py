@@ -49,6 +49,7 @@ def main() -> int:
         fail("MT6765 recovery rc must enable configfs USB mode")
 
     required_payload = (
+        "system/bin/keystore2",
         "system/bin/hw/android.hardware.gatekeeper@1.0-service",
         "system/bin/hw/android.hardware.keymaster@4.1-service",
         "system/etc/init/android.hardware.gatekeeper@1.0-service.rc",
@@ -61,9 +62,26 @@ def main() -> int:
         "system/lib64/libkeymaster_portable.so",
         "system/lib64/libpuresoftkeymasterdevice.so",
         "system/lib64/libcppbor_external.so",
+        "system/lib64/android.hardware.security.keymint-V1-cpp.so",
+        "system/lib64/android.hardware.security.keymint-V4-ndk.so",
+        "system/lib64/android.system.keystore2-V1-cpp.so",
+        "system/lib64/android.system.keystore2-V5-ndk.so",
+        "system/lib64/libkeymint.so",
+        "system/lib64/libkeymint_support.so",
+        "system/lib64/libkeystore2_aaid.so",
+        "system/lib64/libkeystore2_apc_compat.so",
+        "system/lib64/libkeystore2_crypto.so",
     )
     for relative in required_payload:
         require(RAMDISK / relative)
+
+    for line in (
+        "mount ext4 /dev/block/by-name/vendor /vendor ro",
+        "start vendor.keymaster-4-1",
+        "start vendor.gatekeeper-1-0",
+    ):
+        if line not in mt_rc:
+            fail(f"recovery HAL startup missing: {line}")
 
     print("A25 recovery layout checks passed")
     return 0

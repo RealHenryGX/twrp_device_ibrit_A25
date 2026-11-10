@@ -36,9 +36,28 @@ PRODUCT_PACKAGES += \
 # late-init finalize guarantees the gadget ends bound. This OVERRIDES
 # the OFOX-source usb.rc that would otherwise ship (OFOX build includes
 # its own configfs usb.rc even with EXCLUDE=true — verified on device).
-# NOTE: init.recovery.mt6765.rc is NOT shipped (never fires in eng build).
+# Ship the MT6765 init fragment: it mounts the real vendor partition and
+# starts the vendor Keymaster/Gatekeeper HALs before keystore2.
 PRODUCT_COPY_FILES += \
     device/ibrit/A25/recovery/root/init.recovery.usb.rc:recovery/root/init.recovery.usb.rc \
+    device/ibrit/A25/recovery/root/init.recovery.mt6765.rc:recovery/root/init.recovery.mt6765.rc \
+    device/ibrit/A25/recovery/root/system/bin/keystore2:recovery/root/system/bin/keystore2 \
+    device/ibrit/A25/recovery/root/system/lib64/android.hardware.security.keymint-V1-cpp.so:recovery/root/system/lib64/android.hardware.security.keymint-V1-cpp.so \
+    device/ibrit/A25/recovery/root/system/lib64/android.hardware.security.keymint-V4-ndk.so:recovery/root/system/lib64/android.hardware.security.keymint-V4-ndk.so \
+    device/ibrit/A25/recovery/root/system/lib64/android.system.keystore2-V1-cpp.so:recovery/root/system/lib64/android.system.keystore2-V1-cpp.so \
+    device/ibrit/A25/recovery/root/system/lib64/android.system.keystore2-V5-ndk.so:recovery/root/system/lib64/android.system.keystore2-V5-ndk.so \
+    device/ibrit/A25/recovery/root/system/lib64/lib_android_keymaster_keymint_utils.so:recovery/root/system/lib64/lib_android_keymaster_keymint_utils.so \
+    device/ibrit/A25/recovery/root/system/lib64/libcppbor.so:recovery/root/system/lib64/libcppbor.so \
+    device/ibrit/A25/recovery/root/system/lib64/libkeymaster4_1support.so:recovery/root/system/lib64/libkeymaster4_1support.so \
+    device/ibrit/A25/recovery/root/system/lib64/libkeymaster4support.so:recovery/root/system/lib64/libkeymaster4support.so \
+    device/ibrit/A25/recovery/root/system/lib64/libkeymaster_messages.so:recovery/root/system/lib64/libkeymaster_messages.so \
+    device/ibrit/A25/recovery/root/system/lib64/libkeymaster_portable.so:recovery/root/system/lib64/libkeymaster_portable.so \
+    device/ibrit/A25/recovery/root/system/lib64/libkeymint.so:recovery/root/system/lib64/libkeymint.so \
+    device/ibrit/A25/recovery/root/system/lib64/libkeymint_support.so:recovery/root/system/lib64/libkeymint_support.so \
+    device/ibrit/A25/recovery/root/system/lib64/libkeystore2_aaid.so:recovery/root/system/lib64/libkeystore2_aaid.so \
+    device/ibrit/A25/recovery/root/system/lib64/libkeystore2_apc_compat.so:recovery/root/system/lib64/libkeystore2_apc_compat.so \
+    device/ibrit/A25/recovery/root/system/lib64/libkeystore2_crypto.so:recovery/root/system/lib64/libkeystore2_crypto.so \
+    device/ibrit/A25/recovery/root/system/lib64/libpuresoftkeymasterdevice.so:recovery/root/system/lib64/libpuresoftkeymasterdevice.so \
     device/ibrit/A25/recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc:recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc \
     device/ibrit/A25/recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc:recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc
 
