@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest version="1.0" type="device">
+    <!--
+        Recovery mounts the real vendor partition after hwservicemanager has
+        started. Keep the vendor HAL declaration in the recovery VINTF view so
+        keystore2 can enumerate the 4.1 TEE device instead of falling back to
+        the legacy Keymaster 3.0 probe.
+    -->
+    <hal format="hidl">
+        <name>android.hardware.keymaster</name>
+        <transport>hwbinder</transport>
+        <version>4.1</version>
+        <interface>
+            <name>IKeymasterDevice</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+</manifest>

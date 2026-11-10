@@ -54,6 +54,7 @@ def main() -> int:
         "system/bin/hw/android.hardware.keymaster@4.1-service",
         "system/etc/init/android.hardware.gatekeeper@1.0-service.rc",
         "system/etc/init/android.hardware.keymaster@4.1-service.rc",
+        "system/etc/vintf/manifest/android.hardware.keymaster@4.1-service.xml",
         "system/lib64/libkeymaster4.so",
         "system/lib64/libkeymaster41.so",
         "system/lib64/libkeymaster4support.so",
