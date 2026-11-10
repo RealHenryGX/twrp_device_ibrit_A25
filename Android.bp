@@ -112,6 +112,17 @@ cc_prebuilt_library_shared {
     check_elf_files: false,
 }
 
+cc_prebuilt_library_shared {
+    name: "a25_stock_libsqlite",
+    srcs: ["recovery/root/system/lib64/stock/libsqlite.so"],
+    stem: "libsqlite",
+    recovery_available: true,
+    recovery: true,
+    overrides: ["libsqlite"],
+    relative_install_path: "stock",
+    check_elf_files: false,
+}
+
 cc_prebuilt_binary {
     // Name prefixed to avoid collision with hardware/interfaces/keymaster/4.1/default
     // (OFOX23: "MODULE.TARGET.EXECUTABLES.android.hardware.keymaster@4.1-service

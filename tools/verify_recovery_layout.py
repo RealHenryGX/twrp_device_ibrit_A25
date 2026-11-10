@@ -72,6 +72,7 @@ def main() -> int:
         "system/lib64/stock/libkeystore2_apc_compat.so",
         "system/lib64/stock/libkeystore2_crypto.so",
         "system/lib64/stock/libkm_compat_service.so",
+        "system/lib64/stock/libsqlite.so",
     )
     for relative in required_payload:
         require(RAMDISK / relative)

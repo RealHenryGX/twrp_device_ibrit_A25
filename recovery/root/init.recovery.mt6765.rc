@@ -4,7 +4,7 @@ on init
     setprop sys.usb.controller "musb-hdrc"
     setprop sys.usb.ffs.aio_compat 1
 
-on fs
+on init
     # Keymaster/Gatekeeper are vendor HALs. Recovery has its own /system
     # tree, so expose the read-only vendor partition before starting them.
     mkdir /vendor 0755 root root
