@@ -24,17 +24,6 @@ cc_prebuilt_library_shared {
 }
 
 cc_prebuilt_library_shared {
-    name: "a25_stock_libbinder_ndk",
-    srcs: ["recovery/root/system/lib64/stock/libbinder_ndk.so"],
-    stem: "libbinder_ndk",
-    compile_multilib: "64",
-    recovery_available: true,
-    product_available: false,
-    vendor_available: false,
-    overrides: ["libbinder_ndk"],
-}
-
-cc_prebuilt_library_shared {
     name: "a25_stock_android_hardware_security_secureclock_V1_ndk",
     srcs: ["recovery/root/system/lib64/stock/android.hardware.security.secureclock-V1-ndk.so"],
     stem: "android.hardware.security.secureclock-V1-ndk",
