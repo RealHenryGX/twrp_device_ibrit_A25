@@ -20,6 +20,7 @@ cc_prebuilt_library_shared {
     recovery_available: true,
     recovery: true,
     overrides: ["android.hardware.security.keymint-V1-cpp"],
+    relative_install_path: "stock",
     check_elf_files: false,
 }
 
@@ -30,6 +31,7 @@ cc_prebuilt_library_shared {
     recovery_available: true,
     recovery: true,
     overrides: ["android.hardware.security.keymint-V4-ndk"],
+    relative_install_path: "stock",
     check_elf_files: false,
 }
 
@@ -40,6 +42,7 @@ cc_prebuilt_library_shared {
     recovery_available: true,
     recovery: true,
     overrides: ["android.system.keystore2-V1-cpp"],
+    relative_install_path: "stock",
     check_elf_files: false,
 }
 
@@ -50,6 +53,7 @@ cc_prebuilt_library_shared {
     recovery_available: true,
     recovery: true,
     overrides: ["android.system.keystore2-V5-ndk"],
+    relative_install_path: "stock",
     check_elf_files: false,
 }
 
@@ -60,6 +64,7 @@ cc_prebuilt_library_shared {
     recovery_available: true,
     recovery: true,
     overrides: ["android.hardware.confirmationui-V1-ndk"],
+    relative_install_path: "stock",
     check_elf_files: false,
 }
 
@@ -70,6 +75,7 @@ cc_prebuilt_library_shared {
     recovery_available: true,
     recovery: true,
     overrides: ["android.hardware.security.secureclock-V1-ndk"],
+    relative_install_path: "stock",
     check_elf_files: false,
 }
 
@@ -80,6 +86,7 @@ cc_prebuilt_library_shared {
     recovery_available: true,
     recovery: true,
     overrides: ["android.hardware.security.sharedsecret-V1-ndk"],
+    relative_install_path: "stock",
     check_elf_files: false,
 }
 
@@ -90,6 +97,7 @@ cc_prebuilt_library_shared {
     recovery_available: true,
     recovery: true,
     overrides: ["android.hardware.security.rkp-V3-ndk"],
+    relative_install_path: "stock",
     check_elf_files: false,
 }
 
@@ -100,6 +108,7 @@ cc_prebuilt_library_shared {
     recovery_available: true,
     recovery: true,
     overrides: ["android.security.compat-ndk"],
+    relative_install_path: "stock",
     check_elf_files: false,
 }
 
@@ -110,6 +119,7 @@ cc_prebuilt_library_shared {
     recovery_available: true,
     recovery: true,
     overrides: ["lib_android_keymaster_keymint_utils"],
+    relative_install_path: "stock",
     check_elf_files: false,
 }
 
@@ -120,6 +130,7 @@ cc_prebuilt_library_shared {
     recovery_available: true,
     recovery: true,
     overrides: ["libcppbor"],
+    relative_install_path: "stock",
     check_elf_files: false,
 }
 
@@ -130,6 +141,7 @@ cc_prebuilt_library_shared {
     recovery_available: true,
     recovery: true,
     overrides: ["libkeymint"],
+    relative_install_path: "stock",
     check_elf_files: false,
 }
 
@@ -140,6 +152,7 @@ cc_prebuilt_library_shared {
     recovery_available: true,
     recovery: true,
     overrides: ["libkeymint_support"],
+    relative_install_path: "stock",
     check_elf_files: false,
 }
 
@@ -150,6 +163,7 @@ cc_prebuilt_library_shared {
     recovery_available: true,
     recovery: true,
     overrides: ["libkeystore2_aaid"],
+    relative_install_path: "stock",
     check_elf_files: false,
 }
 
@@ -160,6 +174,7 @@ cc_prebuilt_library_shared {
     recovery_available: true,
     recovery: true,
     overrides: ["libkeystore2_apc_compat"],
+    relative_install_path: "stock",
     check_elf_files: false,
 }
 
@@ -170,6 +185,7 @@ cc_prebuilt_library_shared {
     recovery_available: true,
     recovery: true,
     overrides: ["libkeystore2_crypto"],
+    relative_install_path: "stock",
     check_elf_files: false,
 }
 
@@ -180,6 +196,7 @@ cc_prebuilt_library_shared {
     recovery_available: true,
     recovery: true,
     overrides: ["libkm_compat_service"],
+    relative_install_path: "stock",
     check_elf_files: false,
 }
 
@@ -190,6 +207,7 @@ cc_prebuilt_library_shared {
     recovery_available: true,
     recovery: true,
     overrides: ["libc++"],
+    relative_install_path: "stock",
     check_elf_files: false,
 }
 
@@ -200,6 +218,7 @@ cc_prebuilt_library_shared {
     recovery_available: true,
     recovery: true,
     overrides: ["libsqlite"],
+    relative_install_path: "stock",
     check_elf_files: false,
 }
 
@@ -210,6 +229,7 @@ cc_prebuilt_library_shared {
     recovery_available: true,
     recovery: true,
     overrides: ["libhidlbase"],
+    relative_install_path: "stock",
     check_elf_files: false,
 }
 
@@ -220,6 +240,7 @@ cc_prebuilt_library_shared {
     recovery_available: true,
     recovery: true,
     overrides: ["libbinder_ndk"],
+    relative_install_path: "stock",
     check_elf_files: false,
 }
 
@@ -230,6 +251,7 @@ cc_prebuilt_library_shared {
     recovery_available: true,
     recovery: true,
     overrides: ["libbinder"],
+    relative_install_path: "stock",
     check_elf_files: false,
 }
 
@@ -240,6 +262,7 @@ cc_prebuilt_library_shared {
     recovery_available: true,
     recovery: true,
     overrides: ["libapexsupport"],
+    relative_install_path: "stock",
     check_elf_files: false,
 }
 
