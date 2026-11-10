@@ -13,17 +13,6 @@ cc_prebuilt_binary {
     check_elf_files: false,
 }
 cc_prebuilt_library_shared {
-    name: "a25_stock_android_hardware_security_keymint_V4_ndk",
-    srcs: ["recovery/root/system/lib64/stock/android.hardware.security.keymint-V4-ndk.so"],
-    stem: "android.hardware.security.keymint-V4-ndk",
-    recovery_available: true,
-    recovery: true,
-    overrides: ["android.hardware.security.keymint-V4-ndk"],
-    relative_install_path: "stock",
-    check_elf_files: false,
-}
-
-cc_prebuilt_library_shared {
     name: "a25_stock_android_hardware_confirmationui_V1_ndk",
     srcs: ["recovery/root/system/lib64/stock/android.hardware.confirmationui-V1-ndk.so"],
     stem: "android.hardware.confirmationui-V1-ndk",

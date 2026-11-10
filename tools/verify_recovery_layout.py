@@ -55,7 +55,6 @@ def main() -> int:
         "system/etc/init/android.hardware.gatekeeper@1.0-service.rc",
         "system/etc/init/android.hardware.keymaster@4.1-service.rc",
         "system/etc/vintf/manifest/android.hardware.keymaster@4.1-service.xml",
-        "system/lib64/stock/android.hardware.security.keymint-V4-ndk.so",
         "system/lib64/stock/android.hardware.confirmationui-V1-ndk.so",
         "system/lib64/stock/android.hardware.security.secureclock-V1-ndk.so",
         "system/lib64/stock/android.hardware.security.sharedsecret-V1-ndk.so",
