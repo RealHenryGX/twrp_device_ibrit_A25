@@ -112,61 +112,6 @@ cc_prebuilt_library_shared {
     check_elf_files: false,
 }
 
-cc_prebuilt_library_shared {
-    name: "a25_stock_libcxx",
-    srcs: ["recovery/root/system/lib64/stock/libc++.so"],
-    stem: "libc++",
-    recovery_available: true,
-    recovery: true,
-    overrides: ["libc++"],
-    relative_install_path: "stock",
-    check_elf_files: false,
-}
-
-cc_prebuilt_library_shared {
-    name: "a25_stock_libhidlbase",
-    srcs: ["recovery/root/system/lib64/stock/libhidlbase.so"],
-    stem: "libhidlbase",
-    recovery_available: true,
-    recovery: true,
-    overrides: ["libhidlbase"],
-    relative_install_path: "stock",
-    check_elf_files: false,
-}
-
-cc_prebuilt_library_shared {
-    name: "a25_stock_libbinder_ndk",
-    srcs: ["recovery/root/system/lib64/stock/libbinder_ndk.so"],
-    stem: "libbinder_ndk",
-    recovery_available: true,
-    recovery: true,
-    overrides: ["libbinder_ndk"],
-    relative_install_path: "stock",
-    check_elf_files: false,
-}
-
-cc_prebuilt_library_shared {
-    name: "a25_stock_libbinder",
-    srcs: ["recovery/root/system/lib64/stock/libbinder.so"],
-    stem: "libbinder",
-    recovery_available: true,
-    recovery: true,
-    overrides: ["libbinder"],
-    relative_install_path: "stock",
-    check_elf_files: false,
-}
-
-cc_prebuilt_library_shared {
-    name: "a25_stock_libapexsupport",
-    srcs: ["recovery/root/system/lib64/stock/libapexsupport.so"],
-    stem: "libapexsupport",
-    recovery_available: true,
-    recovery: true,
-    overrides: ["libapexsupport"],
-    relative_install_path: "stock",
-    check_elf_files: false,
-}
-
 cc_prebuilt_binary {
     // Name prefixed to avoid collision with hardware/interfaces/keymaster/4.1/default
     // (OFOX23: "MODULE.TARGET.EXECUTABLES.android.hardware.keymaster@4.1-service

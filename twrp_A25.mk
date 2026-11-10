@@ -62,11 +62,6 @@ TARGET_RECOVERY_DEVICE_MODULES += \
     a25_stock_libkeystore2_apc_compat \
     a25_stock_libkeystore2_crypto \
     a25_stock_libkm_compat_service \
-    a25_stock_libcxx \
-    a25_stock_libhidlbase \
-    a25_stock_libbinder_ndk \
-    a25_stock_libbinder \
-    a25_stock_libapexsupport \
     libkeymaster4_vendor \
     libkeymaster41_vendor \
     libkeymaster4support_vendor \
