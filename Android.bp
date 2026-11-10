@@ -19,6 +19,7 @@ cc_prebuilt_library_shared {
     stem: "android.hardware.security.keymint-V1-cpp",
     recovery_available: true,
     recovery: true,
+    overrides: ["android.hardware.security.keymint-V1-cpp"],
     check_elf_files: false,
 }
 
@@ -28,6 +29,7 @@ cc_prebuilt_library_shared {
     stem: "android.hardware.security.keymint-V4-ndk",
     recovery_available: true,
     recovery: true,
+    overrides: ["android.hardware.security.keymint-V4-ndk"],
     check_elf_files: false,
 }
 
@@ -37,6 +39,7 @@ cc_prebuilt_library_shared {
     stem: "android.system.keystore2-V1-cpp",
     recovery_available: true,
     recovery: true,
+    overrides: ["android.system.keystore2-V1-cpp"],
     check_elf_files: false,
 }
 
@@ -46,6 +49,7 @@ cc_prebuilt_library_shared {
     stem: "android.system.keystore2-V5-ndk",
     recovery_available: true,
     recovery: true,
+    overrides: ["android.system.keystore2-V5-ndk"],
     check_elf_files: false,
 }
 
@@ -55,6 +59,7 @@ cc_prebuilt_library_shared {
     stem: "android.hardware.confirmationui-V1-ndk",
     recovery_available: true,
     recovery: true,
+    overrides: ["android.hardware.confirmationui-V1-ndk"],
     check_elf_files: false,
 }
 
@@ -64,6 +69,7 @@ cc_prebuilt_library_shared {
     stem: "android.hardware.security.secureclock-V1-ndk",
     recovery_available: true,
     recovery: true,
+    overrides: ["android.hardware.security.secureclock-V1-ndk"],
     check_elf_files: false,
 }
 
@@ -73,6 +79,7 @@ cc_prebuilt_library_shared {
     stem: "android.hardware.security.sharedsecret-V1-ndk",
     recovery_available: true,
     recovery: true,
+    overrides: ["android.hardware.security.sharedsecret-V1-ndk"],
     check_elf_files: false,
 }
 
@@ -82,6 +89,7 @@ cc_prebuilt_library_shared {
     stem: "android.hardware.security.rkp-V3-ndk",
     recovery_available: true,
     recovery: true,
+    overrides: ["android.hardware.security.rkp-V3-ndk"],
     check_elf_files: false,
 }
 
@@ -91,6 +99,7 @@ cc_prebuilt_library_shared {
     stem: "android.security.compat-ndk",
     recovery_available: true,
     recovery: true,
+    overrides: ["android.security.compat-ndk"],
     check_elf_files: false,
 }
 
@@ -100,6 +109,7 @@ cc_prebuilt_library_shared {
     stem: "lib_android_keymaster_keymint_utils",
     recovery_available: true,
     recovery: true,
+    overrides: ["lib_android_keymaster_keymint_utils"],
     check_elf_files: false,
 }
 
@@ -109,6 +119,7 @@ cc_prebuilt_library_shared {
     stem: "libcppbor",
     recovery_available: true,
     recovery: true,
+    overrides: ["libcppbor"],
     check_elf_files: false,
 }
 
@@ -118,6 +129,7 @@ cc_prebuilt_library_shared {
     stem: "libkeymint",
     recovery_available: true,
     recovery: true,
+    overrides: ["libkeymint"],
     check_elf_files: false,
 }
 
@@ -127,6 +139,7 @@ cc_prebuilt_library_shared {
     stem: "libkeymint_support",
     recovery_available: true,
     recovery: true,
+    overrides: ["libkeymint_support"],
     check_elf_files: false,
 }
 
@@ -136,6 +149,7 @@ cc_prebuilt_library_shared {
     stem: "libkeystore2_aaid",
     recovery_available: true,
     recovery: true,
+    overrides: ["libkeystore2_aaid"],
     check_elf_files: false,
 }
 
@@ -145,6 +159,7 @@ cc_prebuilt_library_shared {
     stem: "libkeystore2_apc_compat",
     recovery_available: true,
     recovery: true,
+    overrides: ["libkeystore2_apc_compat"],
     check_elf_files: false,
 }
 
@@ -154,6 +169,7 @@ cc_prebuilt_library_shared {
     stem: "libkeystore2_crypto",
     recovery_available: true,
     recovery: true,
+    overrides: ["libkeystore2_crypto"],
     check_elf_files: false,
 }
 
@@ -163,6 +179,7 @@ cc_prebuilt_library_shared {
     stem: "libkm_compat_service",
     recovery_available: true,
     recovery: true,
+    overrides: ["libkm_compat_service"],
     check_elf_files: false,
 }
 
@@ -172,6 +189,7 @@ cc_prebuilt_library_shared {
     stem: "libc++",
     recovery_available: true,
     recovery: true,
+    overrides: ["libc++"],
     check_elf_files: false,
 }
 
@@ -181,6 +199,7 @@ cc_prebuilt_library_shared {
     stem: "libsqlite",
     recovery_available: true,
     recovery: true,
+    overrides: ["libsqlite"],
     check_elf_files: false,
 }
 
@@ -190,6 +209,7 @@ cc_prebuilt_library_shared {
     stem: "libhidlbase",
     recovery_available: true,
     recovery: true,
+    overrides: ["libhidlbase"],
     check_elf_files: false,
 }
 
@@ -199,6 +219,7 @@ cc_prebuilt_library_shared {
     stem: "libbinder_ndk",
     recovery_available: true,
     recovery: true,
+    overrides: ["libbinder_ndk"],
     check_elf_files: false,
 }
 
@@ -208,6 +229,7 @@ cc_prebuilt_library_shared {
     stem: "libbinder",
     recovery_available: true,
     recovery: true,
+    overrides: ["libbinder"],
     check_elf_files: false,
 }
 
@@ -217,6 +239,7 @@ cc_prebuilt_library_shared {
     stem: "libapexsupport",
     recovery_available: true,
     recovery: true,
+    overrides: ["libapexsupport"],
     check_elf_files: false,
 }
 
