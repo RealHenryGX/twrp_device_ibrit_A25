@@ -62,15 +62,7 @@ TARGET_RECOVERY_DEVICE_MODULES += \
     a25_stock_libkeystore2_apc_compat \
     a25_stock_libkeystore2_crypto \
     a25_stock_libkm_compat_service \
-    a25_stock_libsqlite \
-    libkeymaster4_vendor \
-    libkeymaster41_vendor \
-    libkeymaster4support_vendor \
-    libkeymaster4_1support_vendor \
-    libkeymaster_messages_vendor \
-    libkeymaster_portable_vendor \
-    libpuresoftkeymasterdevice_vendor \
-    libcppbor_external_vendor
+    a25_stock_libsqlite
 
 PRODUCT_BUILD_PROP_OVERRIDES += \
     PRIVATE_BUILD_DESC="full_r65v3_pmz_w1a-user 12 SP1A.210812.016 mp1V15240 release-keys"

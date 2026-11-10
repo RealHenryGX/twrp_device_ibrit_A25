@@ -12,7 +12,6 @@ cc_prebuilt_binary {
     recovery: true,
     check_elf_files: false,
 }
-
 cc_prebuilt_library_shared {
     name: "a25_stock_android_hardware_security_keymint_V4_ndk",
     srcs: ["recovery/root/system/lib64/stock/android.hardware.security.keymint-V4-ndk.so"],
@@ -135,14 +134,6 @@ cc_prebuilt_binary {
     recovery: true,
     check_elf_files: false,
     shared_libs: [
-        "libkeymaster4_vendor",
-        "libkeymaster41_vendor",
-        "libkeymaster4_1support_vendor",
-        "libkeymaster4support_vendor",
-        "libkeymaster_messages_vendor",
-        "libkeymaster_portable_vendor",
-        "libpuresoftkeymasterdevice_vendor",
-        "libcppbor_external_vendor",
         "libbase",
         "libcutils",
         "libhardware",
@@ -151,7 +142,6 @@ cc_prebuilt_binary {
         "libutils",
     ],
 }
-
 cc_prebuilt_binary {
     // Name prefixed to avoid collision with hardware/interfaces/gatekeeper/1.0/default
     // (same module name already defined; OFOX22: "MODULE.TARGET.EXECUTABLES... already defined")
@@ -169,68 +159,4 @@ cc_prebuilt_binary {
         "liblog",
         "libutils",
     ],
-}
-
-cc_prebuilt_library_shared {
-    name: "libkeymaster4_vendor",
-    srcs: ["recovery/root/system/lib64/libkeymaster4.so"],
-    recovery_available: true,
-    recovery: true,
-    check_elf_files: false,
-}
-
-cc_prebuilt_library_shared {
-    name: "libkeymaster41_vendor",
-    srcs: ["recovery/root/system/lib64/libkeymaster41.so"],
-    recovery_available: true,
-    recovery: true,
-    check_elf_files: false,
-}
-
-cc_prebuilt_library_shared {
-    name: "libkeymaster4support_vendor",
-    srcs: ["recovery/root/system/lib64/libkeymaster4support.so"],
-    recovery_available: true,
-    recovery: true,
-    check_elf_files: false,
-}
-
-cc_prebuilt_library_shared {
-    name: "libkeymaster4_1support_vendor",
-    srcs: ["recovery/root/system/lib64/libkeymaster4_1support.so"],
-    recovery_available: true,
-    recovery: true,
-    check_elf_files: false,
-}
-
-cc_prebuilt_library_shared {
-    name: "libkeymaster_messages_vendor",
-    srcs: ["recovery/root/system/lib64/libkeymaster_messages.so"],
-    recovery_available: true,
-    recovery: true,
-    check_elf_files: false,
-}
-
-cc_prebuilt_library_shared {
-    name: "libkeymaster_portable_vendor",
-    srcs: ["recovery/root/system/lib64/libkeymaster_portable.so"],
-    recovery_available: true,
-    recovery: true,
-    check_elf_files: false,
-}
-
-cc_prebuilt_library_shared {
-    name: "libpuresoftkeymasterdevice_vendor",
-    srcs: ["recovery/root/system/lib64/libpuresoftkeymasterdevice.so"],
-    recovery_available: true,
-    recovery: true,
-    check_elf_files: false,
-}
-
-cc_prebuilt_library_shared {
-    name: "libcppbor_external_vendor",
-    srcs: ["recovery/root/system/lib64/libcppbor_external.so"],
-    recovery_available: true,
-    recovery: true,
-    check_elf_files: false,
 }
