@@ -38,6 +38,7 @@ cc_prebuilt_library_shared {
         "liblog",
         "libutils",
     ],
+    check_elf_files: false,
     overrides: ["libbinder_ndk"],
 }
 
