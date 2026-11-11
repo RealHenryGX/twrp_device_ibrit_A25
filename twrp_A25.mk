@@ -53,6 +53,7 @@ TARGET_RECOVERY_DEVICE_MODULES += \
     a25_android.hardware.keymaster@4.1-service \
     a25_android.hardware.gatekeeper@1.0-service \
     a25_keystore2_stock \
+    a25_stock_libbinder_ndk \
     a25_stock_android_hardware_confirmationui_V1_ndk \
     a25_stock_android_hardware_security_secureclock_V1_ndk \
     a25_stock_android_hardware_security_sharedsecret_V1_ndk \
@@ -62,6 +63,11 @@ TARGET_RECOVERY_DEVICE_MODULES += \
     a25_stock_libkeystore2_crypto \
     a25_stock_libkm_compat_service \
     a25_stock_libsqlite
+
+# The legacy Keymaster 3.0 interface is not in the 4.1 service dependency
+# closure and only consumes recovery space.
+TARGET_RECOVERY_DEVICE_MODULES := $(filter-out android.hardware.keymaster@3.0,$(TARGET_RECOVERY_DEVICE_MODULES))
+PRODUCT_PACKAGES := $(filter-out android.hardware.keymaster@3.0,$(PRODUCT_PACKAGES))
 
 PRODUCT_BUILD_PROP_OVERRIDES += \
     PRIVATE_BUILD_DESC="full_r65v3_pmz_w1a-user 12 SP1A.210812.016 mp1V15240 release-keys"
