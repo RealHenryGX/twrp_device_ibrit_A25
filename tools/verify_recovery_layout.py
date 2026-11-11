@@ -3,7 +3,7 @@
 
 These checks intentionally validate only facts that are required before a
 device flash/test cycle: the MTK USB gadget ownership, the metadata block
-alias used by FBE, and the recovery-side Keymaster/Gatekeeper payload.
+alias used by FBE, and the runtime-mounted stock crypto services.
 """
 
 from pathlib import Path
@@ -49,32 +49,32 @@ def main() -> int:
         fail("MT6765 recovery rc must enable configfs USB mode")
 
     required_payload = (
-        "system/bin/keystore2",
-        "system/bin/hw/android.hardware.gatekeeper@1.0-service",
-        "system/bin/hw/android.hardware.keymaster@4.1-service",
         "system/etc/init/android.hardware.gatekeeper@1.0-service.rc",
         "system/etc/init/android.hardware.keymaster@4.1-service.rc",
         "system/etc/vintf/manifest/android.hardware.keymaster@4.1-service.xml",
-        "system/lib64/stock/android.hardware.confirmationui-V1-ndk.so",
-        "system/lib64/stock/android.hardware.security.secureclock-V1-ndk.so",
-        "system/lib64/stock/android.hardware.security.sharedsecret-V1-ndk.so",
-        "system/lib64/stock/android.security.compat-ndk.so",
-        "system/lib64/stock/libkeystore2_aaid.so",
-        "system/lib64/stock/libkeystore2_apc_compat.so",
-        "system/lib64/stock/libkeystore2_crypto.so",
-        "system/lib64/stock/libkm_compat_service.so",
-        "system/lib64/stock/libsqlite.so",
     )
     for relative in required_payload:
         require(RAMDISK / relative)
 
     for line in (
+        "mount ext4 /dev/block/by-name/system /system_real ro",
         "mount ext4 /dev/block/by-name/vendor /vendor ro",
         "start vendor.keymaster-4-1",
         "start vendor.gatekeeper-1-0",
+        "service keystore2 /system_real/system/bin/keystore2",
     ):
         if line not in mt_rc:
             fail(f"recovery HAL startup missing: {line}")
+
+    forbidden_payload = (
+        "system/bin/keystore2",
+        "system/bin/hw/android.hardware.gatekeeper@1.0-service",
+        "system/bin/hw/android.hardware.keymaster@4.1-service",
+        "system/lib64/stock",
+    )
+    for relative in forbidden_payload:
+        if (RAMDISK / relative).exists():
+            fail(f"stock crypto payload must come from mounted partitions: {relative}")
 
     print("A25 recovery layout checks passed")
     return 0
