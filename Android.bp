@@ -32,6 +32,12 @@ cc_prebuilt_library_shared {
     product_available: false,
     vendor_available: false,
     relative_install_path: "stock",
+    shared_libs: [
+        "libbinder",
+        "libc++",
+        "liblog",
+        "libutils",
+    ],
     overrides: ["libbinder_ndk"],
 }
 
