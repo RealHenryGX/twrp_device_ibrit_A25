@@ -36,38 +36,13 @@ PRODUCT_PACKAGES += \
 # late-init finalize guarantees the gadget ends bound. This OVERRIDES
 # the OFOX-source usb.rc that would otherwise ship (OFOX build includes
 # its own configfs usb.rc even with EXCLUDE=true — verified on device).
-# Ship the MT6765 init fragment: it mounts the real vendor partition and
-# starts the vendor Keymaster/Gatekeeper HALs before keystore2.
+# Ship the MT6765 init fragment: it mounts the real system/vendor partitions
+# and starts the matching stock crypto services from those partitions.
 PRODUCT_COPY_FILES += \
     device/ibrit/A25/recovery/root/init.recovery.usb.rc:recovery/root/init.recovery.usb.rc \
     device/ibrit/A25/recovery/root/init.recovery.mt6765.rc:recovery/root/init.recovery.mt6765.rc \
     device/ibrit/A25/recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc:recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc \
     device/ibrit/A25/recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc:recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc
-
-# Force the HAL modules into the RECOVERY ramdisk.
-# TARGET_RECOVERY_DEVICE_MODULES is appended to TWRP_REQUIRED_MODULES in
-# bootable/recovery/Android.mk (line 616). The Android.bp modules carry
-# recovery:true / recovery_available:true so they actually install into
-# recovery/root (OFOX21 without them went to vendor/bin/hw + system/lib64).
-TARGET_RECOVERY_DEVICE_MODULES += \
-    a25_android.hardware.keymaster@4.1-service \
-    a25_android.hardware.gatekeeper@1.0-service \
-    a25_keystore2_stock \
-    a25_stock_libbinder_ndk \
-    a25_stock_android_hardware_confirmationui_V1_ndk \
-    a25_stock_android_hardware_security_secureclock_V1_ndk \
-    a25_stock_android_hardware_security_sharedsecret_V1_ndk \
-    a25_stock_android_security_compat_ndk \
-    a25_stock_libkeystore2_aaid \
-    a25_stock_libkeystore2_apc_compat \
-    a25_stock_libkeystore2_crypto \
-    a25_stock_libkm_compat_service \
-    a25_stock_libsqlite
-
-# The legacy Keymaster 3.0 interface is not in the 4.1 service dependency
-# closure and only consumes recovery space.
-TARGET_RECOVERY_DEVICE_MODULES := $(filter-out android.hardware.keymaster@3.0,$(TARGET_RECOVERY_DEVICE_MODULES))
-PRODUCT_PACKAGES := $(filter-out android.hardware.keymaster@3.0,$(PRODUCT_PACKAGES))
 
 PRODUCT_BUILD_PROP_OVERRIDES += \
     PRIVATE_BUILD_DESC="full_r65v3_pmz_w1a-user 12 SP1A.210812.016 mp1V15240 release-keys"
