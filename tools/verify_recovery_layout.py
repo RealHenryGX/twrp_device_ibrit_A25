@@ -61,7 +61,9 @@ def main() -> int:
         "mount ext4 /dev/block/by-name/vendor /vendor ro",
         "start vendor.keymaster-4-1",
         "start vendor.gatekeeper-1-0",
-        "service keystore2 /system_real/system/bin/keystore2",
+        "service vendor.keymaster-4-1 /vendor/bin/hw/android.hardware.keymaster@4.1-service",
+        "service vendor.gatekeeper-1-0 /vendor/bin/hw/android.hardware.gatekeeper@1.0-service",
+        "service keystore2 /system_real/bin/keystore2",
     ):
         if line not in mt_rc:
             fail(f"recovery HAL startup missing: {line}")
