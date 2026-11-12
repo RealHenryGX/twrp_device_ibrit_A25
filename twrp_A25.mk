@@ -39,7 +39,7 @@ PRODUCT_PACKAGES += \
 # Ship the MT6765 init fragment: it mounts the real system/vendor partitions
 # and starts the matching stock crypto services from those partitions.
 PRODUCT_COPY_FILES += \
-    device/ibrit/A25/recovery.fstab:recovery/root/etc/recovery.fstab \
+    device/ibrit/A25/recovery.fstab:recovery/root/system/etc/recovery.fstab \
     device/ibrit/A25/recovery/root/init.recovery.usb.rc:recovery/root/init.recovery.usb.rc \
     device/ibrit/A25/recovery/root/init.recovery.mt6765.rc:recovery/root/init.recovery.mt6765.rc \
     device/ibrit/A25/recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc:recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc \

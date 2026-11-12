@@ -82,8 +82,8 @@ def main() -> int:
         if line not in mt_rc:
             fail(f"recovery HAL startup missing: {line}")
 
-    if "device/ibrit/A25/recovery.fstab:recovery/root/etc/recovery.fstab" not in product_mk:
-        fail("recovery.fstab is not copied to /etc/recovery.fstab")
+    if "device/ibrit/A25/recovery.fstab:recovery/root/system/etc/recovery.fstab" not in product_mk:
+        fail("recovery.fstab is not copied to system/etc/recovery.fstab")
 
     forbidden_payload = (
         "system/bin/keystore2",
