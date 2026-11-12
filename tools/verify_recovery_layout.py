@@ -7,6 +7,7 @@ alias used by FBE, and the runtime-mounted stock crypto services.
 """
 
 from pathlib import Path
+import argparse
 import re
 import sys
 
@@ -26,8 +27,17 @@ def require(path: Path) -> None:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--ramdisk-root",
+        type=Path,
+        help="built recovery/root directory to validate; defaults to the DT source tree",
+    )
+    args = parser.parse_args()
+
     fstab = (ROOT / "recovery.fstab").read_text(encoding="utf-8")
-    usb_rc = (RAMDISK / "init.recovery.usb.rc").read_text(encoding="utf-8")
+    ramdisk = args.ramdisk_root.resolve() if args.ramdisk_root else RAMDISK
+    usb_rc = (ramdisk / "init.recovery.usb.rc").read_text(encoding="utf-8")
 
     metadata = re.search(r"^/metadata\s+\S+\s+([^\s]+)", fstab, re.MULTILINE)
     if not metadata or not metadata.group(1).endswith("/md_udc"):
@@ -43,8 +53,8 @@ def main() -> int:
         "write /config/usb_gadget/g1/UDC",
     )):
         fail("device-tree USB rc must not duplicate OrangeFox configfs ownership")
-    require(RAMDISK / "init.recovery.mt6765.rc")
-    mt_rc = (RAMDISK / "init.recovery.mt6765.rc").read_text(encoding="utf-8")
+    require(ramdisk / "init.recovery.mt6765.rc")
+    mt_rc = (ramdisk / "init.recovery.mt6765.rc").read_text(encoding="utf-8")
     product_mk = (ROOT / "twrp_A25.mk").read_text(encoding="utf-8")
     if "setprop sys.usb.configfs 1" not in mt_rc:
         fail("MT6765 recovery rc must enable configfs USB mode")
@@ -55,7 +65,10 @@ def main() -> int:
         "system/etc/vintf/manifest/android.hardware.keymaster@4.1-service.xml",
     )
     for relative in required_payload:
-        require(RAMDISK / relative)
+        require(ramdisk / relative)
+
+    if args.ramdisk_root:
+        require(ramdisk / "etc/recovery.fstab")
 
     for line in (
         "mount ext4 /dev/block/by-name/system /system_real ro",
@@ -79,7 +92,7 @@ def main() -> int:
         "system/lib64/stock",
     )
     for relative in forbidden_payload:
-        if (RAMDISK / relative).exists():
+        if (ramdisk / relative).exists():
             fail(f"stock crypto payload must come from mounted partitions: {relative}")
 
     print("A25 recovery layout checks passed")
