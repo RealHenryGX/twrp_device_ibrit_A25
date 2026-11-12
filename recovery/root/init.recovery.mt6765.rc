@@ -1,18 +1,17 @@
 on init
-    # The Android system partition is mounted with /bin, /lib64, etc. at its
-    # root.  /system_real/system/... points one directory too deep.
-    export LD_LIBRARY_PATH /system_real/lib64:/system_real/lib64/vndk-sp:/system/lib64:/vendor/lib64:/vendor/lib64/hw
+    # OrangeFox mounts the logical system partition at /system_root.  The
+    # crypto HALs must start after OrangeFox has created the dm devices.
+    export LD_LIBRARY_PATH /system_root/lib64:/system_root/lib64/vndk-sp:/system/lib64:/vendor/lib64:/vendor/lib64/hw
     setprop sys.usb.configfs 1
     setprop sys.usb.controller "musb-hdrc"
     setprop sys.usb.ffs.aio_compat 1
 
-on init
-    # Keymaster/Gatekeeper are vendor HALs. Recovery has its own /system
-    # tree, so expose the read-only vendor partition before starting them.
-    mkdir /system_real 0755 root root
-    mount ext4 /dev/block/by-name/system /system_real ro
-    mkdir /vendor 0755 root root
-    mount ext4 /dev/block/by-name/vendor /vendor ro
+on property:orangefox.postinit.status=1
+    start vendor.keymaster-4-1
+    start vendor.gatekeeper-1-0
+    start keystore2
+
+on property:orangefox.mount_to_decrypt=1
     start vendor.keymaster-4-1
     start vendor.gatekeeper-1-0
     start keystore2
@@ -29,7 +28,7 @@ service vendor.gatekeeper-1-0 /vendor/bin/hw/android.hardware.gatekeeper@1.0-ser
     group system
     seclabel u:r:recovery:s0
 
-service keystore2 /system_real/bin/keystore2 /data/misc/keystore
+service keystore2 /system_root/bin/keystore2 /data/misc/keystore
     disabled
     user root
     group root system

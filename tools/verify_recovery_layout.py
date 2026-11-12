@@ -71,13 +71,12 @@ def main() -> int:
         require(ramdisk / "etc/recovery.fstab")
 
     for line in (
-        "mount ext4 /dev/block/by-name/system /system_real ro",
-        "mount ext4 /dev/block/by-name/vendor /vendor ro",
+        "on property:orangefox.mount_to_decrypt=1",
         "start vendor.keymaster-4-1",
         "start vendor.gatekeeper-1-0",
         "service vendor.keymaster-4-1 /vendor/bin/hw/android.hardware.keymaster@4.1-service",
         "service vendor.gatekeeper-1-0 /vendor/bin/hw/android.hardware.gatekeeper@1.0-service",
-        "service keystore2 /system_real/bin/keystore2",
+        "service keystore2 /system_root/bin/keystore2",
     ):
         if line not in mt_rc:
             fail(f"recovery HAL startup missing: {line}")
