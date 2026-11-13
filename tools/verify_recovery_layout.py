@@ -23,7 +23,11 @@ def fail(message: str) -> None:
 
 def require(path: Path) -> None:
     if not path.is_file() or path.stat().st_size == 0:
-        fail(f"missing or empty: {path.relative_to(ROOT)}")
+        try:
+            display = path.relative_to(ROOT)
+        except ValueError:
+            display = path
+        fail(f"missing or empty: {display}")
 
 
 def main() -> int:
@@ -37,6 +41,7 @@ def main() -> int:
 
     fstab = (ROOT / "recovery.fstab").read_text(encoding="utf-8")
     ramdisk = args.ramdisk_root.resolve() if args.ramdisk_root else RAMDISK
+    require(ramdisk / "init.recovery.usb.rc")
     usb_rc = (ramdisk / "init.recovery.usb.rc").read_text(encoding="utf-8")
 
     metadata = re.search(r"^/metadata\s+\S+\s+([^\s]+)", fstab, re.MULTILINE)
