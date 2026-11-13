@@ -63,7 +63,6 @@ def main() -> int:
         fail("device-tree USB rc must not duplicate OrangeFox configfs ownership")
     require(ramdisk / "init.recovery.mt6765.rc")
     mt_rc = (ramdisk / "init.recovery.mt6765.rc").read_text(encoding="utf-8")
-    product_mk = (ROOT / "twrp_A25.mk").read_text(encoding="utf-8")
     if "setprop sys.usb.configfs 1" not in mt_rc:
         fail("MT6765 recovery rc must enable configfs USB mode")
 
@@ -89,8 +88,9 @@ def main() -> int:
         if line not in mt_rc:
             fail(f"recovery HAL startup missing: {line}")
 
-    if "device/ibrit/A25/recovery.fstab:recovery/root/system/etc/recovery.fstab" not in product_mk:
-        fail("recovery.fstab is not copied to system/etc/recovery.fstab")
+    board_config = (ROOT / "BoardConfig.mk").read_text(encoding="utf-8")
+    if "TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery.fstab" not in board_config:
+        fail("BoardConfig must use TARGET_RECOVERY_FSTAB for first-stage /etc/recovery.fstab")
 
     forbidden_payload = (
         "system/bin/keystore2",

@@ -160,6 +160,11 @@ TW_FORCE_KEYMASTER_VER := true
 # keymaster 4.0/4.1 HALs (verified: /system/lib64/android.hardware.keymaster@4.0/4.1.so)
 OF_DEFAULT_KEYMASTER_VERSION := 4.1
 TW_HAS_DATA_MEDIA := true
+
+# Let the recovery build system place the fstab at the first-stage path
+# (/etc/recovery.fstab). A PRODUCT_COPY_FILES entry under system/etc is too
+# late because /etc is a symlink to the not-yet-mounted system partition.
+TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery.fstab
 # Brightness: MTK exposes LCD backlight under leds class, not backlight class.
 # max_brightness=255 verified on device (/sys/class/leds/lcd-backlight).
 TW_BRIGHTNESS_PATH := "/sys/class/leds/lcd-backlight/brightness"
