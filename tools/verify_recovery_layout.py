@@ -44,6 +44,9 @@ def main() -> int:
     require(ramdisk / "init.recovery.usb.rc")
     usb_rc = (ramdisk / "init.recovery.usb.rc").read_text(encoding="utf-8")
 
+    if "import /init.recovery.mt6765.rc" not in usb_rc:
+        fail("USB compatibility rc must explicitly import the MT6765 DT rc")
+
     metadata = re.search(r"^/metadata\s+\S+\s+([^\s]+)", fstab, re.MULTILINE)
     if not metadata or not metadata.group(1).endswith("/md_udc"):
         fail("/metadata must use /dev/block/by-name/md_udc")

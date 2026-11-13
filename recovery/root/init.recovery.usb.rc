@@ -2,3 +2,8 @@
 # Keep this imported file empty so the recovery init import remains valid.
 # A second configfs state machine here causes the default init and adbd to
 # repeatedly unbind/rebind ffs.adb and prevents host USB enumeration.
+
+# The generated OrangeFox init.rc imports init.recovery.${ro.hardware}.rc
+# before ro.hardware is available for property expansion on this target.
+# Import the DT service/actions explicitly from this already-imported file.
+import /init.recovery.mt6765.rc
