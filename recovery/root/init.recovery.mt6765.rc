@@ -1,9 +1,6 @@
 on init
     # OrangeFox mounts the logical system partition at /system_root.  The
     # crypto HALs must start after OrangeFox has created the dm devices.
-    # Stock Android 12 keystore2 needs the matching libsqlite symbol set;
-    # prefer mounted system/vendor libraries over recovery's older copies.
-    export LD_LIBRARY_PATH /system_root/system/lib64:/system_root/system/lib64/vndk-sp:/system_root/lib64:/system_root/lib64/vndk-sp:/vendor/lib64:/vendor/lib64/hw:/system/lib64
     setprop sys.usb.configfs 1
     setprop sys.usb.controller "musb-hdrc"
     setprop sys.usb.ffs.aio_compat 1
@@ -58,6 +55,9 @@ service keystore2 /system_root/system/bin/keystore2 /data/misc/keystore
     disabled
     user root
     group root system
+    # Use Android 12's matching libraries for keystore2 only. A global
+    # LD_LIBRARY_PATH breaks recovery's own toolbox binaries.
+    setenv LD_LIBRARY_PATH /system_root/system/lib64:/system_root/system/lib64/vndk-sp:/system_root/lib64:/system_root/lib64/vndk-sp:/vendor/lib64:/vendor/lib64/hw:/system/lib64
     seclabel u:r:recovery:s0
 
 

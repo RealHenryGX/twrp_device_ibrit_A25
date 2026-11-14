@@ -105,7 +105,7 @@ def main() -> int:
         fail("built recovery must contain recovery.fstab in its staged runtime path")
 
     for line in (
-        "export LD_LIBRARY_PATH /system_root/system/lib64:/system_root/system/lib64/vndk-sp",
+        "setenv LD_LIBRARY_PATH /system_root/system/lib64:/system_root/system/lib64/vndk-sp",
         "on property:orangefox.mount_to_decrypt=1",
         "start vendor.keymaster-4-1",
         "start vendor.gatekeeper-1-0",
