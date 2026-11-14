@@ -83,7 +83,7 @@ def main() -> int:
         "start vendor.gatekeeper-1-0",
         "service vendor.keymaster-4-1 /vendor/bin/hw/android.hardware.keymaster@4.1-service",
         "service vendor.gatekeeper-1-0 /vendor/bin/hw/android.hardware.gatekeeper@1.0-service",
-        "service keystore2 /system_root/bin/keystore2",
+        "service keystore2 /system_root/system/bin/keystore2",
     ):
         if line not in mt_rc:
             fail(f"recovery HAL startup missing: {line}")
