@@ -82,8 +82,13 @@ def main() -> int:
     for relative in required_payload:
         require(ramdisk / relative)
 
-    if args.ramdisk_root:
-        require(ramdisk / "etc/recovery.fstab")
+    if args.ramdisk_root and not any(
+        path.is_file() and path.stat().st_size for path in (
+            ramdisk / "etc/recovery.fstab",
+            ramdisk / "first_stage_ramdisk/etc/recovery.fstab",
+        )
+    ):
+        fail("built recovery must contain recovery.fstab under /etc")
 
     for line in (
         "on property:orangefox.mount_to_decrypt=1",
