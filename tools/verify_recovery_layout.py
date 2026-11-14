@@ -86,9 +86,12 @@ def main() -> int:
         path.is_file() and path.stat().st_size for path in (
             ramdisk / "etc/recovery.fstab",
             ramdisk / "first_stage_ramdisk/etc/recovery.fstab",
+            # Android recovery images stage the recovery fstab under /system
+            # where recovery init exposes it as /etc after system_root mounts.
+            ramdisk / "system/etc/recovery.fstab",
         )
     ):
-        fail("built recovery must contain recovery.fstab under /etc")
+        fail("built recovery must contain recovery.fstab in its staged runtime path")
 
     for line in (
         "on property:orangefox.mount_to_decrypt=1",
