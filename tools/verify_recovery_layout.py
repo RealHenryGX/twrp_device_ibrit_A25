@@ -111,7 +111,9 @@ def main() -> int:
         fail("MTP must be included for FunctionFS MTP validation")
 
     forbidden_payload = (
-        "system/bin/keystore2",
+        # This is the recovery system partition's staging path, not a copy
+        # under the ramdisk root. DT init launches it via /system_root/system.
+        "bin/keystore2",
         "system/bin/hw/android.hardware.gatekeeper@1.0-service",
         "system/bin/hw/android.hardware.keymaster@4.1-service",
         "system/lib64/stock",
