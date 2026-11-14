@@ -117,6 +117,13 @@ def main() -> int:
             fail(f"recovery HAL startup missing: {line}")
 
     board_config = (ROOT / "BoardConfig.mk").read_text(encoding="utf-8")
+    input_blacklist = re.search(
+        r'^TW_INPUT_BLACKLIST\s*:=\s*"([^"\\]+)"\s*$',
+        board_config,
+        re.MULTILINE,
+    )
+    if not input_blacklist or input_blacklist.group(1) != "mtk-tpd":
+        fail("recovery input blacklist must be the single exact device name mtk-tpd")
     if "TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery.fstab" not in board_config:
         fail("BoardConfig must use TARGET_RECOVERY_FSTAB for first-stage /etc/recovery.fstab")
     if "TW_EXCLUDE_MTP := true" in board_config:

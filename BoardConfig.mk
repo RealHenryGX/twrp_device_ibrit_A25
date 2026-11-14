@@ -126,15 +126,11 @@ endif
 # disables the whole timer (no screen-off at all, user complained).
 TW_NO_SCREEN_BLANK := true
 # TW_SCREEN_BLANK_ON_BOOT removed — it starts the blank cycle that kills touch.
-# Blacklist input devices: hbtp_vm (stylus) + mtk-tpd. Device exposes BOTH
-# mtk-tpd (event4) and axs_ts (event3). With both active TWRP reads both ->
-# touch explosion. Keeping only mtk-tpd made touch DEAD in recovery (MTK tpd
-# needs userspace firmware load that recovery lacks); axs_ts is the GSI
-# touch bridge and the working source. Separator must be a SINGLE literal
-# backslash-x0a pair as DOUBLE backslash in the makefile (JSON-safe: soong
-# variables are JSON; "\\x0a" parses to literal \x0a which C turns into \n
-# for events.cpp strtok).
-TW_INPUT_BLACKLIST := "hbtp_vm\\x0amtk-tpd"
+# Recovery must use axs_ts (event3), the working touchscreen bridge. The
+# duplicate mtk-tpd (event4) depends on unavailable recovery firmware and
+# competes with axs_ts. TWRP splits blacklist entries on newline, so keep this
+# as one exact device name and avoid Make/Soong escape handling.
+TW_INPUT_BLACKLIST := "mtk-tpd"
 TW_USE_TOOLBOX := true
 
 # MTK USB: KEEP TW_EXCLUDE_DEFAULT_USB_INIT — verified on device:
