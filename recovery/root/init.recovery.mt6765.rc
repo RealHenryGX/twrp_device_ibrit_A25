@@ -33,6 +33,12 @@ on property:sys.usb.ffs.mtp.ready=1 && property:sys.usb.config=mtp,adb && proper
     write /config/usb_gadget/g1/UDC ${sys.usb.controller}
     setprop sys.usb.state ${sys.usb.config}
 
+# OrangeFox's MTP toggle transitions adb -> none -> mtp,adb. Its inherited
+# none handler removes f1 and sets sys.usb.ffs.ready=0, so restore the ADB
+# function when the MTP descriptors have arrived before binding both funcs.
+on property:sys.usb.ffs.mtp.ready=1 && property:sys.usb.config=mtp,adb && property:sys.usb.configfs=1
+    setprop sys.usb.ffs.ready 1
+
 on property:orangefox.postinit.status=1
     start vendor.keymaster-4-1
     start vendor.gatekeeper-1-0
