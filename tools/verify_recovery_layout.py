@@ -51,20 +51,28 @@ def main() -> int:
     if not metadata or not metadata.group(1).endswith("/md_udc"):
         fail("/metadata must use /dev/block/by-name/md_udc")
 
-    # OrangeFox 12.1 already imports and owns the configfs USB state machine
-    # from /system/etc/init/hw/init.rc. The device-tree compatibility import
-    # must stay free of USB actions; two owners create an ffs.adb bind loop.
+    # OrangeFox 12.1 owns the ADB/fastboot configfs state machine. The DT rc
+    # may extend only MTP after FunctionFS publishes descriptors.
     if any(token in usb_rc for token in (
         "mount configfs none /config",
         "mount functionfs adb /dev/usb-ffs/adb",
         "setprop sys.usb.config adb",
-        "write /config/usb_gadget/g1/UDC",
     )):
-        fail("device-tree USB rc must not duplicate OrangeFox configfs ownership")
+        fail("device-tree USB rc must leave configfs and ADB ownership to OrangeFox")
     require(ramdisk / "init.recovery.mt6765.rc")
     mt_rc = (ramdisk / "init.recovery.mt6765.rc").read_text(encoding="utf-8")
     if "setprop sys.usb.configfs 1" not in mt_rc:
         fail("MT6765 recovery rc must enable configfs USB mode")
+    for token in (
+        "mkdir /config/usb_gadget/g1/functions/ffs.mtp",
+        "mount functionfs mtp /dev/usb-ffs/mtp",
+        "on property:sys.usb.config=mtp,adb && property:sys.usb.configfs=1",
+        "on property:sys.usb.ffs.mtp.ready=1 && property:sys.usb.config=mtp,adb && property:sys.usb.configfs=1",
+        "symlink /config/usb_gadget/g1/functions/ffs.adb /config/usb_gadget/g1/configs/b.1/f1",
+        "symlink /config/usb_gadget/g1/functions/ffs.mtp /config/usb_gadget/g1/configs/b.1/f2",
+    ):
+        if token not in mt_rc:
+            fail(f"MT6765 configfs MTP support missing: {token}")
 
     required_payload = (
         "system/etc/init/android.hardware.gatekeeper@1.0-service.rc",
@@ -91,6 +99,8 @@ def main() -> int:
     board_config = (ROOT / "BoardConfig.mk").read_text(encoding="utf-8")
     if "TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery.fstab" not in board_config:
         fail("BoardConfig must use TARGET_RECOVERY_FSTAB for first-stage /etc/recovery.fstab")
+    if "TW_EXCLUDE_MTP := true" in board_config:
+        fail("MTP must be included for FunctionFS MTP validation")
 
     forbidden_payload = (
         "system/bin/keystore2",
