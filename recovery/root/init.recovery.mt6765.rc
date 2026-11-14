@@ -16,28 +16,19 @@ on fs && property:sys.usb.configfs=1
     mkdir /config/usb_gadget/g1/functions/ffs.mtp 0770 shell shell
     mount functionfs mtp /dev/usb-ffs/mtp uid=0,gid=0
 
-# Extend OrangeFox's configfs flow only for MTP; its ADB/fastboot handlers
-# remain the owners of those modes and their FunctionFS readiness lifecycle.
+# TWRP Enable_MTP changes adb -> none -> mtp,adb before its MTP server opens
+# FunctionFS ep0. Defer the MTP configfs bind until the daemon has created ep1.
 on property:sys.usb.config=mtp,adb && property:sys.usb.configfs=1
     setprop sys.usb.ffs.mtp.ready 0
     write /config/usb_gadget/g1/UDC ""
     setprop sys.usb.state ${sys.usb.config}
+    start mtp_rebind
 
-on property:sys.usb.ffs.mtp.ready=1 && property:sys.usb.config=mtp,adb && property:sys.usb.configfs=1
-    write /config/usb_gadget/g1/UDC ""
-    rm /config/usb_gadget/g1/configs/b.1/f1
-    symlink /config/usb_gadget/g1/functions/ffs.adb /config/usb_gadget/g1/configs/b.1/f1
-    symlink /config/usb_gadget/g1/functions/ffs.mtp /config/usb_gadget/g1/configs/b.1/f2
-    write /config/usb_gadget/g1/idProduct 0x4EE2
-    write /config/usb_gadget/g1/configs/b.1/strings/0x409/configuration "mtp_adb"
-    write /config/usb_gadget/g1/UDC ${sys.usb.controller}
-    setprop sys.usb.state ${sys.usb.config}
-
-# OrangeFox's MTP toggle transitions adb -> none -> mtp,adb. Its inherited
-# none handler removes f1 and sets sys.usb.ffs.ready=0, so restore the ADB
-# function when the MTP descriptors have arrived before binding both funcs.
-on property:sys.usb.ffs.mtp.ready=1 && property:sys.usb.config=mtp,adb && property:sys.usb.configfs=1
-    setprop sys.usb.ffs.ready 1
+service mtp_rebind /sbin/sh /sbin/mtp_rebind.sh
+    class main
+    oneshot
+    disabled
+    seclabel u:r:recovery:s0
 
 on property:orangefox.postinit.status=1
     start vendor.keymaster-4-1

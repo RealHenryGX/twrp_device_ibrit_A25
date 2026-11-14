@@ -67,12 +67,23 @@ def main() -> int:
         "mkdir /config/usb_gadget/g1/functions/ffs.mtp",
         "mount functionfs mtp /dev/usb-ffs/mtp",
         "on property:sys.usb.config=mtp,adb && property:sys.usb.configfs=1",
-        "on property:sys.usb.ffs.mtp.ready=1 && property:sys.usb.config=mtp,adb && property:sys.usb.configfs=1",
-        "symlink /config/usb_gadget/g1/functions/ffs.adb /config/usb_gadget/g1/configs/b.1/f1",
-        "symlink /config/usb_gadget/g1/functions/ffs.mtp /config/usb_gadget/g1/configs/b.1/f2",
+        "start mtp_rebind",
+        "service mtp_rebind /sbin/sh /sbin/mtp_rebind.sh",
     ):
         if token not in mt_rc:
             fail(f"MT6765 configfs MTP support missing: {token}")
+    mtp_rebind = ramdisk / "sbin/mtp_rebind.sh"
+    require(mtp_rebind)
+    rebind_text = mtp_rebind.read_text(encoding="utf-8")
+    for token in (
+        "/dev/usb-ffs/mtp/ep1",
+        "/dev/usb-ffs/adb/ep1",
+        '"$G/functions/ffs.mtp"',
+        '"$G/functions/ffs.adb"',
+        "mtp_adb",
+    ):
+        if token not in rebind_text:
+            fail(f"MTP deferred rebind script missing: {token}")
 
     required_payload = (
         "system/etc/init/android.hardware.gatekeeper@1.0-service.rc",
