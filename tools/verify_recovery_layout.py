@@ -227,6 +227,9 @@ def main() -> int:
         fail("duplicate OrangeFox fstab source at system/etc/twrp.fstab")
     if "TW_SKIP_ADDITIONAL_FSTAB := true" not in board_config:
         fail("OrangeFox must use the device-tree crypto fstab without ROM-fstab override")
+    product_mk = (ROOT / "twrp_A25.mk").read_text(encoding="utf-8")
+    if "PRODUCT_PACKAGES -= \\\n    keystore2 \\\n    keystore_cli_v2" not in product_mk:
+        fail("recovery must exclude module-generated Keystore2 files before staging its disabled rc")
     if "resize,," in fstab:
         fail("Android recovery fstab contains an empty mount option")
     if "TW_EXCLUDE_MTP := true" in board_config:
