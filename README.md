@@ -33,6 +33,21 @@ System mounts remain owned by OrangeFox. Keymaster advertises HIDL 3.0/4.0/4.1
 through its service rc; the local ramdisk packer injects this rc so hwservicemanager
 can start it.
 
+MT6765 MTP extends OrangeFox's configfs gadget with an MTP FunctionFS function.
+On `mtp,adb`, init starts `adbd` before the deferred binder waits for both
+FunctionFS `ep1` endpoints. The helper publishes MTP state only after binding
+`ffs.adb` and `ffs.mtp`; endpoint or configfs failures switch back to adb-only
+and record the result in `/tmp/mtp_rebind.status`, outside USB property policy.
+Run the local transition simulator and layout checks with:
+
+```
+python3 tools/test_mtp_rebind.py
+python3 tools/verify_recovery_layout.py
+```
+
+The simulator covers successful MTP bind, MTP/ADB endpoint timeouts, configfs
+link failure, and an unavailable ADB endpoint during recovery.
+
 The latest failed system boot left a pstore kernel panic in `wlan_drv_gen4m`
 teardown (`rmmod` → `wiphy_unregister` → `klist_del`). This is separate from
 the recovery fstab path; the kernel panic is the current cause indicated by

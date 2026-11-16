@@ -106,6 +106,11 @@ def main() -> int:
     ):
         if token not in mt_rc:
             fail(f"MT6765 MTP FunctionFS support missing: {token}")
+    mtp_action = mt_rc.split("on property:sys.usb.config=mtp,adb && property:sys.usb.configfs=1", 1)[1]
+    if mtp_action.index("start adbd") > mtp_action.index("start mtp_rebind"):
+        fail("MTP transition must start adbd before the rebind helper")
+    if "setprop sys.usb.state ${sys.usb.config}" in mtp_action:
+        fail("MTP state must be published only after the gadget is bound")
     require(ramdisk / "sbin/mtp_rebind.sh")
     rebind_text = (ramdisk / "sbin/mtp_rebind.sh").read_text(encoding="utf-8")
     for token in (
@@ -113,11 +118,15 @@ def main() -> int:
         "/dev/usb-ffs/adb/ep1",
         '"$G/functions/ffs.mtp"',
         "fallback_adb()",
-        "start adbd",
         "setprop sys.usb.config adb",
+        "fallback_adb configfs-bind-failed",
+        "fallback-adb-restored",
+        "STATUS_FILE=${A25_MTP_STATUS_FILE:-/tmp/mtp_rebind.status}",
     ):
         if token not in rebind_text:
             fail(f"MTP deferred binding script missing: {token}")
+    if "start adbd" in rebind_text:
+        fail("rebind shell must request adb through sys.usb.config, not init rc syntax")
     required_payload = (
         "system/etc/init/android.hardware.gatekeeper@1.0-service.rc",
         "system/etc/init/android.hardware.keymaster@4.1-service.rc",
