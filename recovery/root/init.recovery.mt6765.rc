@@ -20,6 +20,7 @@ on fs && property:sys.usb.configfs=1
 on property:sys.usb.config=mtp,adb && property:sys.usb.configfs=1
     setprop sys.usb.ffs.mtp.ready 0
     write /config/usb_gadget/g1/UDC ""
+    start adbd
     start mtp_rebind
 
 # The stock OrangeFox init has no configfs handler for MTP+ADB. If MTP is

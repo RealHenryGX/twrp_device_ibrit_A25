@@ -114,7 +114,6 @@ def main() -> int:
         '"$G/functions/ffs.mtp"',
         "fallback_adb()",
         "start adbd",
-        'getprop sys.usb.config)" = none',
         "setprop sys.usb.config adb",
     ):
         if token not in rebind_text:

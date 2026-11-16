@@ -23,12 +23,6 @@ fallback_adb() {
     setprop sys.usb.config adb
 }
 
-# `none` stops adbd. Start it only after that transition has completed so its
-# FunctionFS readiness property and endpoint can drive OrangeFox's ADB bind.
-if [ "$(getprop sys.usb.config)" = none ]; then
-    start adbd
-fi
-
 i=0
 while [ "$i" -lt 150 ]; do
     [ -e /dev/usb-ffs/mtp/ep1 ] && break
