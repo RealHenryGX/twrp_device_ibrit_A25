@@ -23,3 +23,6 @@ unset _a25_android_top
 # was 1.14MB over the 32MB partition; OF_VANILLA_BUILD make-var is obsolete
 # in current OrangeFox, FOX_VANILLA_BUILD must be exported).
 export FOX_VANILLA_BUILD=1
+
+# Use OrangeFox's built-in button-based lock screen for the A25 panel.
+export OF_USE_LOCKSCREEN_BUTTON=1

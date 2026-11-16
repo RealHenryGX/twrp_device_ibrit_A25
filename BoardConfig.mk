@@ -157,10 +157,12 @@ TW_FORCE_KEYMASTER_VER := true
 OF_DEFAULT_KEYMASTER_VERSION := 4.1
 TW_HAS_DATA_MEDIA := true
 
-# Let the recovery build system place the fstab at the first-stage path
-# (/etc/recovery.fstab). A PRODUCT_COPY_FILES entry under system/etc is too
-# late because /etc is a symlink to the not-yet-mounted system partition.
+# OrangeFox's build copies this TWRP-format file to /system/etc/recovery.fstab
+# (also visible as /etc/recovery.fstab through the ramdisk symlink).
 TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery.fstab
+# Android fs_mgr uses the device fstab.mt6765 staged at the ramdisk paths.
+# Skip the ROM's duplicate vendor table so recovery has one crypto definition.
+TW_SKIP_ADDITIONAL_FSTAB := true
 # Brightness: MTK exposes LCD backlight under leds class, not backlight class.
 # max_brightness=255 verified on device (/sys/class/leds/lcd-backlight).
 TW_BRIGHTNESS_PATH := "/sys/class/leds/lcd-backlight/brightness"

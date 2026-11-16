@@ -1,6 +1,6 @@
 on init
-    # OrangeFox mounts the logical system partition at /system_root.  The
-    # crypto HALs must start after OrangeFox has created the dm devices.
+    # OrangeFox owns logical system mounts. Crypto HALs start only after the
+    # logical vendor partition is mounted by the helper below.
     setprop sys.usb.configfs 1
     setprop sys.usb.controller "musb-hdrc"
     setprop sys.usb.ffs.aio_compat 1
@@ -29,37 +29,29 @@ service mtp_rebind /sbin/sh /sbin/mtp_rebind.sh
     disabled
     seclabel u:r:recovery:s0
 
-on property:orangefox.postinit.status=1
+service a25_mount_crypto_vendor /sbin/sh /sbin/a25_mount_crypto_vendor.sh
+    class core
+    disabled
+    oneshot
+    seclabel u:r:recovery:s0
+
+on property:init.svc.recovery=running
+    start a25_mount_crypto_vendor
+
+# Start stock crypto services once OrangeFox has mounted logical vendor.
+on property:orangefox.a25_vendor.ready=1 && property:init.svc.servicemanager=running
     start vendor.keymaster-4-1
     start vendor.gatekeeper-1-0
-    start keystore2
+
+on property:orangefox.postinit.status=1
+    start a25_mount_crypto_vendor
 
 on property:orangefox.mount_to_decrypt=1
-    start vendor.keymaster-4-1
-    start vendor.gatekeeper-1-0
-    start keystore2
+    start a25_mount_crypto_vendor
 
-service vendor.keymaster-4-1 /vendor/bin/hw/android.hardware.keymaster@4.1-service
-    disabled
-    user system
-    group system drmrpc
-    seclabel u:r:recovery:s0
-
-service vendor.gatekeeper-1-0 /vendor/bin/hw/android.hardware.gatekeeper@1.0-service
-    disabled
-    user system
-    group system
-    seclabel u:r:recovery:s0
-
-service keystore2 /system_root/system/bin/keystore2 /data/misc/keystore
-    disabled
-    user root
-    group root system
-    # Use Android 12's matching libraries for keystore2 only. A global
-    # LD_LIBRARY_PATH breaks recovery's own toolbox binaries.
-    setenv LD_LIBRARY_PATH /system_root/system/lib64:/system_root/system/lib64/vndk-sp:/system_root/lib64:/system_root/lib64/vndk-sp:/vendor/lib64:/vendor/lib64/hw:/system/lib64
-    seclabel u:r:recovery:s0
-
+on property:orangefox.a25_vendor.ready=0
+    stop vendor.keymaster-4-1
+    stop vendor.gatekeeper-1-0
 
 on fs && property:ro.debuggable=0
     # NOTE: this block never fires in TWRP (eng build, ro.debuggable=1).
