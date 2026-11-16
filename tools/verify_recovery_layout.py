@@ -177,6 +177,7 @@ def main() -> int:
     if not any(line.startswith("/dev/block/by-name/userdata /data ") for line in android_lines):
         fail("Android fs_mgr /data must use the userdata physical partition")
     for token in (
+        "on post-fs",
         "on property:init.svc.recovery=running",
         "on property:orangefox.postinit.status=1",
         "on property:orangefox.mount_to_decrypt=1",
@@ -187,6 +188,9 @@ def main() -> int:
     ):
         if token not in mt_rc:
             fail(f"early crypto startup prerequisites missing: {token}")
+    post_fs_action = mt_rc.split("on post-fs", 1)[1]
+    if post_fs_action.index("start a25_mount_crypto_vendor") > post_fs_action.index("symlink /dev/block/sda"):
+        fail("crypto vendor helper must start before later post-fs work")
     mount_helper = ramdisk / "sbin/a25_mount_crypto_vendor.sh"
     require(mount_helper)
     mount_helper_text = mount_helper.read_text(encoding="utf-8")
@@ -195,11 +199,13 @@ def main() -> int:
         "/vendor",
         "readlink -f",
         "mounted_source",
-        "sleep 5",
         "setprop orangefox.a25_vendor.ready 1",
+        'getprop orangefox.a25_vendor.ready)" = 1',
     ):
         if token not in mount_helper_text:
             fail(f"early crypto partition helper missing: {token}")
+    if "sleep 5" in mount_helper_text:
+        fail("crypto vendor startup must not wait on an unconditional five-second delay")
 
     if args.ramdisk_root and not any(
         path.is_file() and path.stat().st_size for path in (

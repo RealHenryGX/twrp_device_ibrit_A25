@@ -41,12 +41,24 @@ and record the result in `/tmp/mtp_rebind.status`, outside USB property policy.
 Run the local transition simulator and layout checks with:
 
 ```
+python3 tools/test_crypto_vendor_mount.py
 python3 tools/test_mtp_rebind.py
 python3 tools/verify_recovery_layout.py
 ```
 
-The simulator covers successful MTP bind, MTP/ADB endpoint timeouts, configfs
-link failure, and an unavailable ADB endpoint during recovery.
+The crypto mount helper starts at `post-fs`, has no fixed startup delay, and
+keeps an already-mounted vendor partition ready across duplicate init triggers.
+Its local simulator covers an already-ready mount and a mapper that appears
+after startup.
+The MTP simulator covers successful binding, MTP/ADB endpoint timeouts,
+configfs link failure, and an unavailable ADB endpoint during recovery.
+
+The supplied QTI `haydn` reference starts `qseecomd` and waits for `/dev/qseecom`
+before starting Keymaster and Gatekeeper. A25 uses MediaTek Keymaster 4.1 and
+Gatekeeper 1.0; only the early-start ordering is applicable. The reference also
+uses `wrappedkey_v0` and `inlinecrypt_optimized`, while A25's shipped vendor
+fstab does not, so those QTI-specific userdata flags are not part of A25's
+recovery fstab.
 
 The latest failed system boot left a pstore kernel panic in `wlan_drv_gen4m`
 teardown (`rmmod` → `wiphy_unregister` → `klist_del`). This is separate from
