@@ -107,16 +107,14 @@ def main() -> int:
         if token not in rebind_text:
             fail(f"MTP deferred binding script missing: {token}")
     required_payload = (
-        "system/etc/init/keystore2.rc",
         "system/etc/init/android.hardware.gatekeeper@1.0-service.rc",
         "system/etc/init/android.hardware.keymaster@4.1-service.rc",
         "system/etc/vintf/manifest/android.hardware.keymaster@4.1-service.xml",
     )
     for relative in required_payload:
         require(ramdisk / relative)
-    keystore_rc = (ramdisk / "system/etc/init/keystore2.rc").read_text(encoding="utf-8")
-    if "service keystore2" in keystore_rc or "start keystore2" in keystore_rc or "start keystore2" in mt_rc:
-        fail("Android Keystore2 must remain disabled in recovery; crypto uses the Keymaster/Gatekeeper HIDL HALs")
+    if "start keystore2" in mt_rc:
+        fail("device init must not start Keystore2; recovery FBE uses the Keymaster/Gatekeeper HIDL HALs")
 
     android_fstab = ramdisk / "fstab.mt6765"
     first_stage_fstab = ramdisk / "first_stage_ramdisk" / "fstab.mt6765"
@@ -228,8 +226,6 @@ def main() -> int:
     if "TW_SKIP_ADDITIONAL_FSTAB := true" not in board_config:
         fail("OrangeFox must use the device-tree crypto fstab without ROM-fstab override")
     product_mk = (ROOT / "twrp_A25.mk").read_text(encoding="utf-8")
-    if "PRODUCT_PACKAGES -= \\\n    keystore2 \\\n    keystore_cli_v2" not in product_mk:
-        fail("recovery must exclude module-generated Keystore2 files before staging its disabled rc")
     if "resize,," in fstab:
         fail("Android recovery fstab contains an empty mount option")
     if "TW_EXCLUDE_MTP := true" in board_config:

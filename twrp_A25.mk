@@ -27,13 +27,6 @@ PRODUCT_PACKAGES += \
     fscryptpolicyget.recovery \
     adbd.recovery
 
-# FBE decryption uses the Keymaster/Gatekeeper HIDL HALs. Keystore2 crashes
-# in this recovery environment, so exclude its module-generated init rc and
-# stage the recovery-specific disabled service definition below.
-PRODUCT_PACKAGES -= \
-    keystore2 \
-    keystore_cli_v2
-
 # keymaster/gatekeeper HAL rc files (non-ELF, safe for COPY_FILES)
 # Keep the DT USB fragment limited to crypto HAL startup. OrangeFox owns the
 # configfs gadget lifecycle; a second owner interferes with ADB enumeration.
@@ -45,7 +38,6 @@ PRODUCT_COPY_FILES += \
     device/ibrit/A25/recovery/root/init.recovery.usb.rc:recovery/root/init.recovery.usb.rc \
     device/ibrit/A25/recovery/root/init.recovery.mt6765.rc:recovery/root/init.recovery.mt6765.rc \
     device/ibrit/A25/recovery/root/sbin/a25_mount_crypto_vendor.sh:recovery/root/sbin/a25_mount_crypto_vendor.sh \
-    device/ibrit/A25/recovery/root/system/etc/init/keystore2.rc:recovery/root/system/etc/init/keystore2.rc \
     device/ibrit/A25/recovery/root/sbin/mtp_rebind.sh:recovery/root/sbin/mtp_rebind.sh \
     device/ibrit/A25/recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc:recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc \
     device/ibrit/A25/recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc:recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc

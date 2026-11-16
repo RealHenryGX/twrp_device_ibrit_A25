@@ -21,9 +21,8 @@ table.
 The verified userdata block is `/dev/block/mmcblk0p35`; metadata is
 `/dev/block/mmcblk0p10` (`md_udc`). System and vendor are logical partitions.
 OrangeFox mounts vendor read-only before starting the Keymaster and Gatekeeper
-HALs. Keystore2 is disabled in recovery because its process repeatedly crashes
-during binder/HIDL initialization; FBE recovery uses the Keymaster and
-Gatekeeper HALs.
+HALs. Device init does not explicitly start Keystore2; FBE recovery uses the
+Keymaster and Gatekeeper HALs.
 
 The recovery helper remounts logical vendor read-only after OrangeFox post-init,
 because OrangeFox can unmount its early vendor mount during recovery startup.
