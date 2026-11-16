@@ -71,7 +71,11 @@ def main() -> int:
     twrp_data = next((entry for entry in twrp_entries if entry[0] == "/data"), None)
     if not twrp_data or twrp_data[1:3] != ["ext4", "/dev/block/by-name/userdata"]:
         fail("OrangeFox fstab must map /data to the physical ext4 userdata partition")
-    for token in ("fileencryption=aes-256-xts:aes-256-cts:v2", "keydirectory=/metadata/vold/metadata_encryption"):
+    for token in (
+        "fileencryption=aes-256-xts:aes-256-cts:v2",
+        "keydirectory=/metadata/vold/metadata_encryption",
+        "metadata_encryption=aes-256-xts",
+    ):
         if token not in " ".join(twrp_data[3:]):
             fail(f"OrangeFox /data fstab is missing {token}")
     twrp_vendor = next((entry for entry in twrp_entries if entry[0] == "/vendor"), None)
@@ -120,8 +124,16 @@ def main() -> int:
     first_stage_fstab = ramdisk / "first_stage_ramdisk" / "fstab.mt6765"
     require(android_fstab)
     require(first_stage_fstab)
-    if args.ramdisk_root and not (ramdisk / "etc/fstab.mt6765").is_file():
-        fail("built ramdisk must stage the device fstab at /etc/fstab.mt6765")
+    runtime_fstab = ramdisk / "system/etc/fstab.mt6765"
+    if args.ramdisk_root:
+        require(runtime_fstab)
+        etc_link = ramdisk / "etc"
+        if not etc_link.is_symlink() or str(etc_link.readlink()).replace("\\", "/") != "/system/etc":
+            fail("built ramdisk /etc must remain OrangeFox's /system/etc symlink")
+    else:
+        product_copy_files = (ROOT / "twrp_A25.mk").read_text(encoding="utf-8")
+        if "recovery/root/fstab.mt6765:recovery/root/system/etc/fstab.mt6765" not in product_copy_files:
+            fail("device fstab must be staged under system/etc, leaving OrangeFox root/etc symlink intact")
     if android_fstab.read_bytes() != first_stage_fstab.read_bytes():
         fail("root and first-stage Android fstab copies must match")
     android_lines = android_fstab.read_text(encoding="utf-8").splitlines()

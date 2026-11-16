@@ -33,7 +33,7 @@ PRODUCT_PACKAGES += \
 # Ship the MT6765 init fragment and its vendor-only crypto HAL mount helper.
 PRODUCT_COPY_FILES += \
     device/ibrit/A25/recovery/root/fstab.mt6765:recovery/root/fstab.mt6765 \
-    device/ibrit/A25/recovery/root/fstab.mt6765:recovery/root/etc/fstab.mt6765 \
+    device/ibrit/A25/recovery/root/fstab.mt6765:recovery/root/system/etc/fstab.mt6765 \
     device/ibrit/A25/recovery/root/first_stage_ramdisk/fstab.mt6765:recovery/root/first_stage_ramdisk/fstab.mt6765 \
     device/ibrit/A25/recovery/root/init.recovery.usb.rc:recovery/root/init.recovery.usb.rc \
     device/ibrit/A25/recovery/root/init.recovery.mt6765.rc:recovery/root/init.recovery.mt6765.rc \

@@ -6,9 +6,12 @@ resolves there through a ramdisk symlink. Android fs_mgr uses the separate
 `recovery/root/fstab.mt6765` copies.
 
 `fstab.mt6765` carries Android fs_mgr configuration at `/fstab.mt6765`,
-`/etc/fstab.mt6765`, and `/first_stage_ramdisk/fstab.mt6765`. `/data` maps to userdata (p35) with
+`/system/etc/fstab.mt6765`, and `/first_stage_ramdisk/fstab.mt6765`; OrangeFox's
+`/etc` symlink exposes the system copy at `/etc/fstab.mt6765`. `/data` maps to userdata (p35) with
 FBE v2 key directory `/metadata/vold/metadata_encryption`; `/metadata` maps to
 `md_udc` (p10). `inlinecrypt` and `latemount` stay in the Android fs_mgr table.
+The OrangeFox `/data` entry also declares the metadata cipher as AES-256-XTS so
+its FBEv2 metadata decrypt path receives the algorithm explicitly.
 The full-build setting `TW_SKIP_ADDITIONAL_FSTAB := true` makes OrangeFox skip
 the ROM's extra vendor fstab. OrangeFox's startup log on the flashed build
 shows it still loads `/etc/additional.fstab`, so the compile-time setting must
