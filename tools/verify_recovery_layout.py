@@ -100,6 +100,7 @@ def main() -> int:
         "mkdir /config/usb_gadget/g1/functions/ffs.mtp",
         "mount functionfs mtp /dev/usb-ffs/mtp",
         "on property:sys.usb.config=mtp,adb && property:sys.usb.configfs=1",
+        "start adbd",
         "start mtp_rebind",
         "service mtp_rebind /sbin/sh /sbin/mtp_rebind.sh",
     ):
@@ -107,7 +108,15 @@ def main() -> int:
             fail(f"MT6765 MTP FunctionFS support missing: {token}")
     require(ramdisk / "sbin/mtp_rebind.sh")
     rebind_text = (ramdisk / "sbin/mtp_rebind.sh").read_text(encoding="utf-8")
-    for token in ("/dev/usb-ffs/mtp/ep1", "/dev/usb-ffs/adb/ep1", '"$G/functions/ffs.mtp"'):
+    for token in (
+        "/dev/usb-ffs/mtp/ep1",
+        "/dev/usb-ffs/adb/ep1",
+        '"$G/functions/ffs.mtp"',
+        "fallback_adb()",
+        "start adbd",
+        'getprop sys.usb.config)" = none',
+        "setprop sys.usb.config adb",
+    ):
         if token not in rebind_text:
             fail(f"MTP deferred binding script missing: {token}")
     required_payload = (
