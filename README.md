@@ -158,3 +158,6 @@ it has not yet been built into a recovery image.
 ## FBE CLI fallback correction (2026-11-17)
 
 The earlier no-PIN startup evidence shows metadata setup and DE-key initialization are separate stages. The current recovery patch now classifies `/data` as FBE from its configured `keydirectory` before attempting metadata setup, tracks metadata readiness, and returns an explicit FBE error if that setup fails. The CLI decrypt entry point also reconstructs the FBE flag from the `/data` partition before it can reach the legacy FDE checker. This removes a known wrong-path condition; it does not establish that the reported Signal 6 came from that condition or that Gatekeeper accepted the credential. Logs from the latest CLI attempt remain unread by request. The updated patch and verifier still require a new Actions build and fresh pre-PIN runtime evidence.
+
+
+The first Actions attempt for this correction (`44093082574`) applied the patch but failed during `partitionmanager.cpp` compilation. The CLI hunk had zero context and was placed at the file tail by `git apply`, producing syntax errors near line 4978. The patch is now regenerated with surrounding source context; the incremental diff applies cleanly against an LF copy of the OrangeFox source snapshot. The next Actions run must confirm the complete patch and C++ build before flashing.
