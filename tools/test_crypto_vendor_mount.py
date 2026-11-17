@@ -26,7 +26,7 @@ def executable(path: Path, content: str) -> None:
     path.chmod(0o755)
 
 
-def run_case(name: str, *, already_mounted: bool) -> None:
+def run_case(name: str, *, already_mounted: bool, additional_fstab_present: bool) -> None:
     case = Path(tempfile.mkdtemp(prefix=f"crypto-vendor-{name}-", dir=TEST_ROOT))
     try:
         bin_dir = case / "bin"
@@ -51,11 +51,12 @@ def run_case(name: str, *, already_mounted: bool) -> None:
             encoding="ascii",
         )
         additional_fstab = case / "additional.fstab"
-        additional_fstab.write_text(
-            "/dev/block/by-name/userdata /data ext4 noatime,fileencryption=aes-256-xts:aes-256-cts:v2,keydirectory=/metadata/vold/metadata_encryption\n"
-            "/dev/block/by-name/cache /cache ext4 defaults\n",
-            encoding="utf-8",
-        )
+        if additional_fstab_present:
+            additional_fstab.write_text(
+                "/dev/block/by-name/userdata /data ext4 noatime,fileencryption=aes-256-xts:aes-256-cts:v2,keydirectory=/metadata/vold/metadata_encryption\n"
+                "/dev/block/by-name/cache /cache ext4 defaults\n",
+                encoding="utf-8",
+            )
         staged_fstab = case / "a25-additional.fstab"
         staged_fstab.touch()
         ctl_log = case / "ctl-start.log"
@@ -72,6 +73,7 @@ def run_case(name: str, *, already_mounted: bool) -> None:
             encoding="ascii",
         )
         mount_log = case / "mount.log"
+        mount_log.touch()
 
         executable(
             bin_dir / "getprop",
@@ -138,6 +140,7 @@ def run_case(name: str, *, already_mounted: bool) -> None:
         result = subprocess.run(["bash", str(HELPER)], env=env, text=True, capture_output=True, check=False)
         assert result.returncode == 0, (result.returncode, result.stdout, result.stderr)
         first_mount_log = mount_log.read_text(encoding="utf-8").splitlines()
+        first_status = (case / "status").read_text(encoding="utf-8")
         second = subprocess.run(["bash", str(HELPER)], env=env, text=True, capture_output=True, check=False)
         assert second.returncode == 0, (second.returncode, second.stdout, second.stderr)
         final_props = dict(line.split("=", 1) for line in props.read_text(encoding="ascii").splitlines())
@@ -163,13 +166,16 @@ def run_case(name: str, *, already_mounted: bool) -> None:
         ]
         assert (case / "crypto-start-sequence.log").read_text(encoding="ascii").splitlines() == expected_sequence * 2
         assert additional_fstab.read_text(encoding="utf-8").splitlines() == [EXPECTED_DATA_FSTAB]
+        expected_status = "additional-fstab-corrected" if additional_fstab_present else "additional-fstab-created"
+        assert expected_status in first_status
         assert "additional-fstab-corrected" in (case / "status").read_text(encoding="utf-8")
-        expected_mounts = [f"-o bind {staged_fstab} {additional_fstab}"]
+        expected_mounts = [f"-o bind {staged_fstab} {additional_fstab}"] if additional_fstab_present else []
         if not already_mounted:
             expected_mounts.insert(0, f"-t ext4 -o ro {target} /vendor")
         assert first_mount_log == expected_mounts
         assert mount_log.read_text(encoding="utf-8").splitlines() == expected_mounts, "repeat invocation added a duplicate fstab mount"
-        assert f"tmpfs {additional_fstab} tmpfs rw 0 0" in mounts.read_text(encoding="utf-8")
+        if additional_fstab_present:
+            assert f"tmpfs {additional_fstab} tmpfs rw 0 0" in mounts.read_text(encoding="utf-8")
         if not already_mounted:
             assert f"{target} /vendor ext4 ro 0 0" in mounts.read_text(encoding="utf-8")
     finally:
@@ -179,9 +185,10 @@ def run_case(name: str, *, already_mounted: bool) -> None:
 def main() -> None:
     TEST_ROOT.mkdir(parents=True, exist_ok=True)
     subprocess.run(["sh", "-n", str(HELPER)], check=True)
-    run_case("already-ready", already_mounted=True)
-    run_case("mapper-arrives-after-start", already_mounted=False)
-    print("Crypto vendor mount checks passed: idempotent ready state and delayed mapper availability")
+    run_case("already-ready", already_mounted=True, additional_fstab_present=True)
+    run_case("mapper-arrives-after-start", already_mounted=False, additional_fstab_present=True)
+    run_case("additional-fstab-skipped", already_mounted=True, additional_fstab_present=False)
+    print("Crypto vendor mount checks passed: ready state, delayed mapper, and skipped additional.fstab")
 
 
 if __name__ == "__main__":

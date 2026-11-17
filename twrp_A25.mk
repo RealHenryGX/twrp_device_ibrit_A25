@@ -37,6 +37,7 @@ PRODUCT_COPY_FILES += \
     device/ibrit/A25/recovery/root/first_stage_ramdisk/fstab.mt6765:recovery/root/first_stage_ramdisk/fstab.mt6765 \
     device/ibrit/A25/recovery/root/init.recovery.usb.rc:recovery/root/init.recovery.usb.rc \
     device/ibrit/A25/recovery/root/init.recovery.mt6765.rc:recovery/root/init.recovery.mt6765.rc \
+    device/ibrit/A25/recovery/root/system/etc/additional.fstab:recovery/root/system/etc/additional.fstab \
     device/ibrit/A25/recovery/root/sbin/a25_mount_crypto_vendor.sh:recovery/root/sbin/a25_mount_crypto_vendor.sh \
     device/ibrit/A25/recovery/root/sbin/mtp_rebind.sh:recovery/root/sbin/mtp_rebind.sh \
     device/ibrit/A25/recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc:recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc \

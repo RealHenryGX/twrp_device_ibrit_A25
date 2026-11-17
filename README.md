@@ -13,13 +13,13 @@ FBE v2 key directory `/metadata/vold/metadata_encryption`; `/metadata` maps to
 The OrangeFox `/data` entry also declares the metadata cipher as AES-256-XTS so
 its FBEv2 metadata decrypt path receives the algorithm explicitly.
 The full-build setting `TW_SKIP_ADDITIONAL_FSTAB := true` makes OrangeFox skip
-the ROM's extra vendor fstab. OrangeFox's startup log on the flashed build
-shows it still loads `/etc/additional.fstab`, so the compile-time setting must
-be included in the next full build. The vendor-generated file repeats
-`/data` and `/metadata` and its `/data` line contains the malformed `resize,,`
-option. The device-tree Android `fstab.mt6765` has that empty mount option
-removed; `/data` and `/metadata` are defined once in each consumer's proper
-table.
+the ROM's extra vendor fstab. The recovery image therefore packages the
+corrected fs_mgr `/data` row as `/system/etc/additional.fstab`, available at
+`/etc/additional.fstab` before OrangeFox initializes encrypted userdata. The
+crypto helper also creates this file if it is absent. This avoids using the
+vendor-generated row, which repeats `/data` and `/metadata` and has a malformed
+`resize,,` option. The Android `fstab.mt6765` keeps the empty mount option
+removed and remains separate from both Recovery fstab formats.
 
 The verified userdata block is `/dev/block/mmcblk0p35`; metadata is
 `/dev/block/mmcblk0p10` (`md_udc`). System and vendor are logical partitions.
@@ -171,3 +171,11 @@ Actions run `44101136523` reached 94% and failed compiling `partitionmanager.cpp
 When A25 kept returning to Recovery, `/dev/block/by-name/para` contained a standard BCB request (`boot-recovery` at offset 0, `recovery\n` at `0x40`). Back up the 2 KiB BCB, clear only that region, and preserve the rest of `para`; the device returned to Android. Check BCB state before branching into boot-image theories.
 
 Normal Android baseline: Android 12 completed boot with `ro.crypto.type=file`, metadata encryption enabled, `/data` on `dm-48` with `inlinecrypt`, Keystore2 and Keymaster 4.1 running, Gatekeeper 1.0 running, and user 0 `RUNNING_UNLOCKED`. Use these facts to compare the Recovery crypto path. Logs from the latest CLI decrypt attempt were not inspected.
+
+### Additional fstab missing on Recovery startup (2026-11-18)
+
+A fresh Recovery boot on the connected A25 logged `Skipping Additional Fstab Processing`, had `fstab.additional=0`, and had no `/etc/additional.fstab`. Startup then reported `Unable to decrypt metadata encryption`; this boot never reached the DE-key install stage. The helper's old behavior waited five seconds for a file that `TW_SKIP_ADDITIONAL_FSTAB := true` intentionally prevents OrangeFox from generating, then returned success with a `waiting-for-additional-fstab` status. This is a concrete ordering/configuration failure ahead of the previously observed DE-key failure.
+
+The corrected one-row fs_mgr file is now staged at `recovery/root/system/etc/additional.fstab` and added to `PRODUCT_COPY_FILES`, so `/etc/additional.fstab` exists before OrangeFox parses encrypted userdata. The helper also creates it immediately if missing and validates its contents before publishing system-ready. A temporary live run of the modified helper on A25 created the expected row, returned 0, and left Keymaster, Gatekeeper, and Keystore2 running. No Recovery PIN was entered and no second decrypt was triggered.
+
+Fresh no-PIN logcat confirms Keymaster 4.1 and Gatekeeper 1.0 HIDL registration, successful Keystore2 shared-secret negotiation and AIDL service registration, and `keystore.crash_count=0`; the three service processes remained running in a second snapshot 30 seconds later. Recovery Gatekeeper has not yet had a credential match. WSL crypto-helper, MTP, and recovery-layout checks pass. Next: commit this fstab bootstrap correction, build with GitHub Actions, verify the produced ramdisk contains the packaged file, then test its startup DE path from the Recovery image.

@@ -78,6 +78,25 @@ def main() -> int:
     ):
         if token not in " ".join(twrp_data[3:]):
             fail(f"OrangeFox /data fstab is missing {token}")
+
+    additional_fstab = ramdisk / "system/etc/additional.fstab"
+    require(additional_fstab)
+    additional_entries = [
+        line.split()
+        for line in additional_fstab.read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
+    if len(additional_entries) != 1 or additional_entries[0][:3] != [
+        "/dev/block/by-name/userdata", "/data", "ext4"
+    ]:
+        fail("packaged fs_mgr additional.fstab must contain exactly the A25 userdata entry")
+    for token in (
+        "fileencryption=aes-256-xts:aes-256-cts:v2",
+        "keydirectory=/metadata/vold/metadata_encryption",
+        "metadata_encryption=aes-256-xts",
+    ):
+        if token not in " ".join(additional_entries[0][3:]):
+            fail(f"packaged additional.fstab /data entry is missing {token}")
     twrp_vendor = next((entry for entry in twrp_entries if entry[0] == "/vendor"), None)
     if not twrp_vendor or "fsflags=ro" not in " ".join(twrp_vendor[3:]):
         fail("OrangeFox must mount logical /vendor read-only")
@@ -138,6 +157,11 @@ def main() -> int:
         "system/etc/vintf/manifest/android.system.keystore2-service.xml",
     )
     for relative in required_payload:
+        if relative in (
+            "system/etc/init/keystore2.rc",
+            "system/etc/vintf/manifest/android.system.keystore2-service.xml",
+        ) and not args.ramdisk_root:
+            continue
         require(ramdisk / relative)
     logd_rc = mt_rc
     for token in (
@@ -148,7 +172,15 @@ def main() -> int:
     ):
         if token not in logd_rc:
             fail(f"recovery logd service missing: {token}")
-    keystore_rc = (ramdisk / "system/etc/init/keystore2.rc").read_text(encoding="utf-8")
+    if args.ramdisk_root:
+        keystore_rc = (ramdisk / "system/etc/init/keystore2.rc").read_text(encoding="utf-8")
+    else:
+        keystore_patch = ROOT / "patches/a25-keystore2-rc.patch"
+        require(keystore_patch)
+        patch_text = keystore_patch.read_text(encoding="utf-8")
+        keystore_rc = "\n".join(
+            line[1:] for line in patch_text.splitlines() if line.startswith("+") and not line.startswith("+++")
+        )
     for token in (
         "service keystore2 /system/bin/keystore2 /tmp/a25-keystore2-db",
         "interface aidl android.system.keystore2.IKeystoreService/default",
@@ -292,6 +324,8 @@ def main() -> int:
         "mount -t ext4 -o ro",
         "printf '%s\\n' \"$DATA_FSTAB_ROW\" > \"$STAGED_ADDITIONAL_FSTAB\"",
         "mount -o bind \"$STAGED_ADDITIONAL_FSTAB\" \"$ADDITIONAL_FSTAB\"",
+        'cp "$STAGED_ADDITIONAL_FSTAB" "$ADDITIONAL_FSTAB"',
+        'printf \'%s\\n\' additional-fstab-created > "$STATUS_FILE"',
         "chown 1017:1017 /tmp/a25-keystore2-db",
         "metadata_encryption=aes-256-xts",
         "setprop orangefox.a25_system.ready 1",
@@ -328,6 +362,8 @@ def main() -> int:
     if "TW_SKIP_ADDITIONAL_FSTAB := true" not in board_config:
         fail("OrangeFox must use the device-tree crypto fstab without ROM-fstab override")
     product_mk = (ROOT / "twrp_A25.mk").read_text(encoding="utf-8")
+    if "recovery/root/system/etc/additional.fstab:recovery/root/system/etc/additional.fstab" not in product_mk:
+        fail("the corrected fs_mgr additional.fstab must be packaged before Recovery startup")
     if "resize,," in fstab:
         fail("Android recovery fstab contains an empty mount option")
     if "TW_EXCLUDE_MTP := true" in board_config:

@@ -49,23 +49,19 @@ ensure_system_ro() {
 }
 
 ensure_additional_fstab() {
-    i=0
-    while [ "$i" -lt 50 ]; do
-        if [ -f "$ADDITIONAL_FSTAB" ]; then
-            break
-        fi
-        i=$((i + 1))
-        sleep 0.1
-    done
-    [ -f "$ADDITIONAL_FSTAB" ] || {
-        printf '%s\n' waiting-for-additional-fstab > "$STATUS_FILE"
-        return 0
-    }
     printf '%s\n' "$DATA_FSTAB_ROW" > "$STAGED_ADDITIONAL_FSTAB" || return 1
     chmod 0644 "$STAGED_ADDITIONAL_FSTAB" || return 1
     is_expected_additional_fstab "$STAGED_ADDITIONAL_FSTAB" || return 1
     if is_expected_additional_fstab "$ADDITIONAL_FSTAB"; then
         printf '%s\n' additional-fstab-corrected > "$STATUS_FILE"
+        return 0
+    fi
+    if [ ! -e "$ADDITIONAL_FSTAB" ]; then
+        mkdir -p "$(dirname "$ADDITIONAL_FSTAB")" || return 1
+        cp "$STAGED_ADDITIONAL_FSTAB" "$ADDITIONAL_FSTAB" || return 1
+        chmod 0644 "$ADDITIONAL_FSTAB" || return 1
+        is_expected_additional_fstab "$ADDITIONAL_FSTAB" || return 1
+        printf '%s\n' additional-fstab-created > "$STATUS_FILE"
         return 0
     fi
     mount -o bind "$STAGED_ADDITIONAL_FSTAB" "$ADDITIONAL_FSTAB" || return 1
