@@ -89,13 +89,13 @@ def main() -> int:
         "mount functionfs adb /dev/usb-ffs/adb",
         "setprop sys.usb.config adb",
     )):
-        fail("device-tree USB rc must leave configfs and ADB ownership to OrangeFox")
+        fail("device-tree USB compatibility rc must leave base configfs ADB ownership to system init")
     require(ramdisk / "init.recovery.mt6765.rc")
     mt_rc = (ramdisk / "init.recovery.mt6765.rc").read_text(encoding="utf-8")
     if "setprop sys.usb.configfs 1" not in mt_rc:
         fail("MT6765 recovery rc must enable configfs USB mode")
-    # OrangeFox owns the primary ADB lifecycle; the DT extends only MTP after
-    # FunctionFS publishes its descriptors.
+    # Android init owns base ADB configfs transitions. The DT adds MTP once
+    # both ADB and MTP FunctionFS endpoints are ready.
     for token in (
         "mkdir /config/usb_gadget/g1/functions/ffs.mtp",
         "mount functionfs mtp /dev/usb-ffs/mtp",
@@ -103,24 +103,27 @@ def main() -> int:
         "start adbd",
         "start mtp_rebind",
         "service mtp_rebind /sbin/sh /sbin/mtp_rebind.sh",
+        "property:sys.usb.ffs.ready=1 && property:sys.usb.ffs.mtp.ready=1",
+        "symlink /config/usb_gadget/g1/functions/ffs.mtp",
+        "write /config/usb_gadget/g1/UDC ${sys.usb.controller}",
     ):
         if token not in mt_rc:
             fail(f"MT6765 MTP FunctionFS support missing: {token}")
     mtp_action = mt_rc.split("on property:sys.usb.config=mtp,adb && property:sys.usb.configfs=1", 1)[1]
     if mtp_action.index("start adbd") > mtp_action.index("start mtp_rebind"):
         fail("MTP transition must start adbd before the rebind helper")
-    if "setprop sys.usb.state ${sys.usb.config}" in mtp_action:
+    if mtp_action.index("write /config/usb_gadget/g1/UDC ${sys.usb.controller}") > mtp_action.index("setprop sys.usb.state ${sys.usb.config}"):
         fail("MTP state must be published only after the gadget is bound")
     require(ramdisk / "sbin/mtp_rebind.sh")
     rebind_text = (ramdisk / "sbin/mtp_rebind.sh").read_text(encoding="utf-8")
     for token in (
         "/dev/usb-ffs/mtp/ep1",
         "/dev/usb-ffs/adb/ep1",
-        '"$G/functions/ffs.mtp"',
         "fallback_adb()",
         "setprop sys.usb.config adb",
-        "fallback_adb configfs-bind-failed",
-        "fallback-adb-restored",
+        'setprop sys.usb.ffs.mtp.ready 1',
+        "fallback_adb init-mtp-bind-timeout",
+        'write_status "fallback-adb-restored:$reason"',
         "STATUS_FILE=${A25_MTP_STATUS_FILE:-/tmp/mtp_rebind.status}",
     ):
         if token not in rebind_text:
@@ -130,12 +133,40 @@ def main() -> int:
     required_payload = (
         "system/etc/init/android.hardware.gatekeeper@1.0-service.rc",
         "system/etc/init/android.hardware.keymaster@4.1-service.rc",
-        "system/etc/vintf/manifest/android.hardware.keymaster@4.1-service.xml",
+        "system/etc/init/keystore2.rc",
+        "system/etc/vintf/manifest.xml",
+        "system/etc/vintf/manifest/android.system.keystore2-service.xml",
     )
     for relative in required_payload:
         require(ramdisk / relative)
-    if "start keystore2" in mt_rc:
-        fail("device init must not start Keystore2; recovery FBE uses the Keymaster/Gatekeeper HIDL HALs")
+    logd_rc = mt_rc
+    for token in (
+        "service a25_logd /system_root/system/bin/logd",
+        "socket logd stream",
+        "socket logdr seqpacket",
+        "socket logdw dgram+passcred",
+    ):
+        if token not in logd_rc:
+            fail(f"recovery logd service missing: {token}")
+    keystore_rc = (ramdisk / "system/etc/init/keystore2.rc").read_text(encoding="utf-8")
+    for token in (
+        "service keystore2 /system/bin/keystore2 /tmp/a25-keystore2-db",
+        "interface aidl android.system.keystore2.IKeystoreService/default",
+        "user keystore",
+        "group keystore",
+        "setenv LD_LIBRARY_PATH /system/lib64:/system/lib64/vndk-sp:",
+        "stdio_to_kmsg",
+        "seclabel u:r:recovery:s0",
+    ):
+        if token not in keystore_rc:
+            fail(f"recovery Keystore2 AIDL service missing: {token}")
+    if args.ramdisk_root:
+        require(ramdisk / "system/bin/keystore2")
+    framework_manifest = (ramdisk / "system/etc/vintf/manifest.xml").read_text(encoding="utf-8")
+    if '<manifest version="4.0" type="framework">' not in framework_manifest:
+        fail("Recovery framework VINTF root must match its libvintf 4.0 parser")
+    if (ramdisk / "system/etc/vintf/manifest/android.hardware.keymaster@4.1-service.xml").exists():
+        fail("device Keymaster HAL must remain in vendor VINTF, not framework fragments")
 
     android_fstab = ramdisk / "fstab.mt6765"
     first_stage_fstab = ramdisk / "first_stage_ramdisk" / "fstab.mt6765"
@@ -200,6 +231,7 @@ def main() -> int:
         "readlink -f",
         "mounted_source",
         "setprop orangefox.a25_vendor.ready 1",
+        "chown 1017:1017 /tmp/a25-keystore2-db",
         'getprop orangefox.a25_vendor.ready)" = 1',
     ):
         if token not in mount_helper_text:
@@ -228,6 +260,14 @@ def main() -> int:
         "on property:orangefox.mount_to_decrypt=1",
         "start vendor.keymaster-4-1",
         "start vendor.gatekeeper-1-0",
+        "on property:orangefox.a25_system.ready=1 && property:init.svc.servicemanager=running",
+        "start a25_logd",
+        "on property:orangefox.a25_system.ready=1 && property:init.svc.a25_logd=running",
+        "start keystore2",
+        "on property:init.svc.servicemanager=running",
+        "setprop servicemanager.ready true",
+        "on property:init.svc.servicemanager=stopped",
+        "setprop servicemanager.ready false",
     ):
         if line not in mt_rc:
             fail(f"recovery HAL startup missing: {line}")
@@ -242,6 +282,17 @@ def main() -> int:
     keymaster_text = (ramdisk / "system/etc/init/android.hardware.keymaster@4.1-service.rc").read_text(encoding="utf-8")
     if "interface android.hardware.keymaster@3.0::IKeymasterDevice default" not in keymaster_text:
         fail("Keymaster recovery init service must advertise the 3.0 interface requested by hwservicemanager")
+    crypto_mount_text = (ROOT / "recovery/root/sbin/a25_mount_crypto_vendor.sh").read_text(encoding="utf-8")
+    for token in (
+        "ensure_system_ro()",
+        "mount -t ext4 -o ro",
+        "cat > \"$ADDITIONAL_FSTAB\"",
+        "chown 1017:1017 /tmp/a25-keystore2-db",
+        "metadata_encryption=aes-256-xts",
+        "setprop orangefox.a25_system.ready 1",
+    ):
+        if token not in crypto_mount_text:
+            fail(f"recovery crypto bootstrap missing: {token}")
 
     board_config = (ROOT / "BoardConfig.mk").read_text(encoding="utf-8")
     vendor_setup = (ROOT / "vendorsetup.sh").read_text(encoding="utf-8")

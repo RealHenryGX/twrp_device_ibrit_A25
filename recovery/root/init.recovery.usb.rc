@@ -1,7 +1,5 @@
-# USB is owned by OrangeFox's /system/etc/init/hw/init.rc.
-# Keep this imported file empty so the recovery init import remains valid.
-# A second configfs state machine here causes the default init and adbd to
-# repeatedly unbind/rebind ffs.adb and prevents host USB enumeration.
+# Android's system init owns the base ADB/configfs state machine. This
+# compatibility rc only imports the device-specific MTP extension.
 
 # The generated OrangeFox init.rc imports init.recovery.${ro.hardware}.rc
 # before ro.hardware is available for property expansion on this target.

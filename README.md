@@ -53,6 +53,31 @@ after startup.
 The MTP simulator covers successful binding, MTP/ADB endpoint timeouts,
 configfs link failure, and an unavailable ADB endpoint during recovery.
 
+The external SD MTP path has now been confirmed on the connected A25: Windows
+enumerates `Micro SDCard` and reports 58.2 GB total / 35.1 GB available. FBE
+remains under investigation. Captured logs showed the mounted system's API 36
+Keystore2 failing against Recovery's API 32 servicemanager (`Stability` level
+0 and `android.security.compat` missing). A local probe with Recovery's API 32
+Keystore2 completed shared-secret negotiation, then stopped at service
+registration because the booted Recovery VINTF root did not declare its AIDL
+service. The next local candidate uses the Recovery Keystore2 binary, a
+libvintf 4.0 framework root plus the existing Keystore2 AIDL fragment, and
+sets `servicemanager.ready` from init. The duplicate Keymaster device fragment
+was removed from the framework fragment directory; the mounted vendor
+partition already declares Keymaster 4.1.
+
+Recovery currently starts the vendor's software Gatekeeper and the generic
+software Keymaster implementation. The locally patched image
+`pending/local-verify/a25-recovery-local/recovery-fbe-compat32-candidate.img`
+(SHA-256 `301ea0108ce2c796c4a34d1476b6ccc2a7a2a97e4692cd6d8a9e951f10a36379`)
+was signed, AVB-verified, and flashed to the recovery partition from bootloader
+on the verified A25 serial. After a clean boot, Gatekeeper and Keymaster stayed
+running, Keystore2 registered its AIDL service and remained alive with crash
+count 0, and shared-secret negotiation succeeded. The PIN has not yet been
+entered; the next check is the user's on-device unlock attempt. Boot logs and
+Binder state are saved under `pending/local-verify/a25-recovery-local/` with
+the `a25-compat32-boot-` prefix.
+
 The supplied QTI `haydn` reference starts `qseecomd` and waits for `/dev/qseecom`
 before starting Keymaster and Gatekeeper. A25 uses MediaTek Keymaster 4.1 and
 Gatekeeper 1.0; only the early-start ordering is applicable. The reference also
@@ -64,6 +89,61 @@ The latest failed system boot left a pstore kernel panic in `wlan_drv_gen4m`
 teardown (`rmmod` → `wiphy_unregister` → `klist_del`). This is separate from
 the recovery fstab path; the kernel panic is the current cause indicated by
 the captured logs for returning to recovery instead of Android.
+
+## Latest FBE runtime evidence (2026-11-17)
+
+The external SD now enumerates in Windows Explorer as `A25 > Micro SDCard`
+(58.2 GB total, 35.1 GB available). The running local recovery has the corrected
+single-row `/etc/additional.fstab`; metadata decryption succeeds and creates
+`/dev/block/dm-3`, which is mounted at `/data`.
+
+The automatic startup attempt fails before PIN verification. The recovery log shows three failed
+`fscrypt_initialize_systemwide_keys` attempts after `Trying with wrappedkey`,
+then `Unable to decrypt FBE device`. Keystore2 AIDL is registered and stable
+with crash count 0, but Keystore2 selects SOFTWARE Keymaster. The vendor Gatekeeper service loads `SoftGatekeeper`, and
+the vendor image contains `libpuresoftkeymasterdevice.so` without a secure
+Keymaster MTEE/Trustonic service or matching TEE Gatekeeper implementation.
+The kernel starts Trusty/MTEE components, but the matching vendor userspace
+services and init fragments are absent from the mounted vendor image. This HAL
+inventory is not by itself the cause of the current DE key install failure.
+
+The stock vendor `/data` fstab row uses FBE v2 and does not declare
+`wrappedkey_v0`; do not infer that flag from Recovery's `Trying with wrappedkey`
+diagnostic. A local experiment synced Keymaster's OS properties from the mounted
+Android 16 `system/build.prop` before starting the HAL. The runtime snapshot
+showed release 16 / SDK 36 / patch 2025-12-01, but DE key initialization still
+failed, so that property sync did not resolve the remaining failure. A later
+live property read showed release 12 again, indicating an additional property
+writer or startup-order issue.
+
+Current complete logs and image audit are under
+`pending/local-verify/a25-recovery-local/`, especially `a25-property-runtime-recovery.log`,
+`a25-property-runtime-recovery-logcat.txt`,
+`a25-property-runtime-recovery-dmesg.txt`, and
+`recovery-fbe-version-runtime-report.json`. At the time those startup snapshots
+were collected no PIN had been submitted; they contain no Gatekeeper PIN-match
+evidence.
+
+The user subsequently submitted a PIN through the recovery CLI and still got
+Signal 6. Per the user's instruction, logs from that attempt were not used.
+Reviewing TeamWin's `android_system_vold` `android-12.1` source shows that the
+`Trying with wrappedkey` message is emitted only after key retrieval succeeds
+and the first `install_storage_key()` fails; retrying with wrapped keys then
+fails as well. Focus the next probe on the fscrypt key-install ioctl and its
+errno. TeamWin's `android_bootable_recovery` `android-12.1` source also shows
+that `Decrypt_Device()` falls into the legacy FDE `cryptfs_check_passwd()` path
+when `TW_IS_FBE` is false; that interface rejects FBE. The A25 recovery must
+preserve FBE classification through the CLI decrypt path and must not treat an
+FBE setup failure as an FDE credential check.
+
+An initial source patch is stored at
+`patches/a25-preserve-fbe-on-de-key-failure.patch`. It preserves the FBE state
+when DE key setup fails, tracks whether those keys are ready, and blocks both
+automatic and CLI fallback into the legacy FDE checker. Apply it to a clean
+`android_bootable_recovery` checkout with
+`tools/apply_fbe_recovery_patch.sh <path-to-bootable-recovery>` before building.
+The patch applies cleanly to OrangeFox `fox_12.1` at source commit `8d2aad1`;
+it has not yet been built into a recovery image.
 
 ```
 #

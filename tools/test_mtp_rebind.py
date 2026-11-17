@@ -47,7 +47,8 @@ def run_case(
         mtp_ep1.parent.mkdir(parents=True)
         adb_ep1.parent.mkdir(parents=True)
         if mtp_ready:
-            mtp_ep1.touch()
+            for endpoint in (mtp_ep1, mtp_ep1.with_name("ep2"), mtp_ep1.with_name("ep3")):
+                endpoint.touch()
         if adb_ready:
             adb_ep1.touch()
 
@@ -76,6 +77,7 @@ def run_case(
             "case \"$key:$value\" in\n"
             "  sys.usb.config:none)\n"
             "    \"$0\" sys.usb.ffs.ready 0; \"$0\" sys.usb.state none\n"
+            "    printf '%s\\n' none > \"$A25_TEST_GADGET/UDC\"\n"
             "    rm -f \"$A25_TEST_GADGET/configs/b.1/f1\" \"$A25_TEST_GADGET/configs/b.1/f2\";;\n"
             "  sys.usb.config:adb)\n"
             "    if [ \"$(\"$A25_TEST_BIN/getprop\" sys.usb.ffs.ready)\" != 1 ]; then\n"
@@ -86,13 +88,21 @@ def run_case(
             "      printf '%s\\n' \"$(\"$A25_TEST_BIN/getprop\" sys.usb.controller)\" > \"$A25_TEST_GADGET/UDC\"\n"
             "      \"$0\" sys.usb.state adb\n"
             "    fi;;\n"
+            "  sys.usb.ffs.mtp.ready:1)\n"
+            "    ln -s \"$A25_TEST_GADGET/functions/ffs.adb\" \"$A25_TEST_GADGET/configs/b.1/f1\" 2>/dev/null || :\n"
+            "    ln -s \"$A25_TEST_GADGET/functions/ffs.mtp\" \"$A25_TEST_GADGET/configs/b.1/f2\" 2>/dev/null || :\n"
+            "    printf '0x18d1\\n' > \"$A25_TEST_GADGET/idVendor\"\n"
+            "    printf '0x4ee2\\n' > \"$A25_TEST_GADGET/idProduct\"\n"
+            "    printf 'mtp_adb\\n' > \"$A25_TEST_GADGET/configuration\"\n"
+            "    printf '%s\\n' \"$(\"$A25_TEST_BIN/getprop\" sys.usb.controller)\" > \"$A25_TEST_GADGET/UDC\"\n"
+            "    \"$0\" sys.usb.state mtp,adb;;\n"
             "esac\n",
         )
         write_executable(
             bin_dir / "start",
             "#!/bin/sh\n"
             "[ \"$1\" = adbd ] || exit 0\n"
-            "if [ \"${A25_TEST_NO_ADB:-0}\" = 0 ]; then touch \"$A25_TEST_ADB_EP1\"; \"$A25_TEST_BIN/setprop\" sys.usb.ffs.ready 1; fi\n",
+            "if [ \"${A25_TEST_NO_ADB:-0}\" = 0 ]; then touch \"$A25_TEST_ADB_EP1\"; \"$A25_TEST_BIN/setprop\" sys.usb.ffs.ready 1; \"$A25_TEST_BIN/setprop\" sys.usb.state adb; fi\n",
         )
         write_executable(bin_dir / "sleep", "#!/bin/sh\nexit 0\n")
         write_executable(
@@ -129,13 +139,18 @@ def run_case(
             assert (gadget / "UDC").read_text(encoding="ascii").strip() == "musb-hdrc"
         elif no_adb_after_fallback:
             assert result.returncode == 1, (result.returncode, result.stderr)
-            assert status_file.read_text(encoding="ascii").strip() == "fallback-adb-not-ready"
+            assert status_file.read_text(encoding="ascii").strip() == "fallback-adb-not-ready:mtp-endpoint-timeout"
             assert props["sys.usb.config"] == "adb", props
         else:
             assert result.returncode == 1, (result.returncode, result.stderr)
             assert props["sys.usb.config"] == "adb", props
             assert props["sys.usb.state"] == "adb", props
-            assert status_file.read_text(encoding="ascii").strip() == "fallback-adb-restored"
+            reason = {
+                "mtp-timeout": "mtp-endpoint-timeout",
+                "adb-timeout": "adb-endpoint-timeout",
+                "configfs-bind-failure": "init-mtp-bind-timeout",
+            }[name]
+            assert status_file.read_text(encoding="ascii").strip() == f"fallback-adb-restored:{reason}"
             assert (gadget / "configs/b.1/f1").is_symlink()
             assert not (gadget / "configs/b.1/f2").exists()
             assert (gadget / "UDC").read_text(encoding="ascii").strip() == "musb-hdrc"
@@ -151,7 +166,7 @@ def main() -> None:
     run_case("adb-timeout", mtp_ready=True, adb_ready=False)
     run_case("configfs-bind-failure", mtp_ready=True, adb_ready=True, fail_mtp_link=True)
     run_case("adb-unavailable", mtp_ready=False, adb_ready=False, no_adb_after_fallback=True)
-    print("MTP rebind state-machine checks passed: success, endpoint timeouts, bind failure, adb unavailable")
+    print("MTP rebind/init handoff checks passed: success, endpoint timeouts, init bind failure, adb unavailable")
 
 
 if __name__ == "__main__":

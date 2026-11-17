@@ -134,10 +134,10 @@ TW_INPUT_BLACKLIST := "mtk-tpd"
 TW_USE_TOOLBOX := true
 
 # MTK USB: KEEP TW_EXCLUDE_DEFAULT_USB_INIT — verified on device:
-# OFOX12 (EXCLUDE set) had working adb; OFOX16/17 (removed) USB dead.
-# With EXCLUDE, TWRP skips its legacy android_usb init and our
-# init.recovery.usb.rc (configfs + sys.usb.config=adb + start adbd)
-# fully owns the gadget. Without it, TWRP legacy init fights configfs.
+# OFOX12 (EXCLUDE set) had working ADB; OFOX16/17 (removed) USB dead.
+# This excludes TWRP's legacy android_usb setup. Android system init still
+# owns the base configfs ADB transitions; our MT6765 rc adds MTP binding after
+# both FunctionFS endpoints are ready.
 TW_EXCLUDE_DEFAULT_USB_INIT := true
 
 # MTK battery/thermal: use legacy battery services + custom cpu temp node
@@ -152,8 +152,9 @@ TW_INCLUDE_CRYPTO_FBE := true
 TW_INCLUDE_FBE_METADATA_DECRYPT := true
 TW_USE_FSCRYPT_POLICY := 2
 TW_FORCE_KEYMASTER_VER := true
-# OrangeFox requires this alongside TW_FORCE_KEYMASTER_VER; device has
-# keymaster 4.0/4.1 HALs (verified: /system/lib64/android.hardware.keymaster@4.0/4.1.so)
+# OrangeFox requires this alongside TW_FORCE_KEYMASTER_VER. Vendor advertises
+# Keymaster HIDL 4.1, but recovery currently selects SOFTWARE security level;
+# this interface library alone does not prove a secure TEE Keymaster exists.
 OF_DEFAULT_KEYMASTER_VERSION := 4.1
 TW_HAS_DATA_MEDIA := true
 

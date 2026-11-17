@@ -40,7 +40,8 @@ PRODUCT_COPY_FILES += \
     device/ibrit/A25/recovery/root/sbin/a25_mount_crypto_vendor.sh:recovery/root/sbin/a25_mount_crypto_vendor.sh \
     device/ibrit/A25/recovery/root/sbin/mtp_rebind.sh:recovery/root/sbin/mtp_rebind.sh \
     device/ibrit/A25/recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc:recovery/root/system/etc/init/android.hardware.keymaster@4.1-service.rc \
-    device/ibrit/A25/recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc:recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc
+    device/ibrit/A25/recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc:recovery/root/system/etc/init/android.hardware.gatekeeper@1.0-service.rc \
+    device/ibrit/A25/recovery/root/system/etc/init/keystore2.rc:recovery/root/system/etc/init/keystore2.rc
 
 PRODUCT_BUILD_PROP_OVERRIDES += \
     PRIVATE_BUILD_DESC="full_r65v3_pmz_w1a-user 12 SP1A.210812.016 mp1V15240 release-keys"
