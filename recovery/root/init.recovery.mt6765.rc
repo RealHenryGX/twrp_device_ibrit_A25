@@ -5,6 +5,7 @@ on init
     setprop sys.usb.controller "musb-hdrc"
     setprop sys.usb.ffs.aio_compat 1
     setprop orangefox.a25_system.ready 0
+    start a25_fscrypt_keyring
 
 # Recovery's servicemanager does not publish servicemanager.ready itself.
 # Keystore2 waits for this property before registering its AIDL service.
@@ -60,6 +61,14 @@ service a25_mount_crypto_vendor /sbin/sh /sbin/a25_mount_crypto_vendor.sh
     class core
     disabled
     oneshot
+    seclabel u:r:recovery:s0
+
+service a25_fscrypt_keyring /system/bin/a25_fscrypt_keyring
+    class core
+    user root
+    group root
+    oneshot
+    disabled
     seclabel u:r:recovery:s0
 
 service a25_logd /system_root/system/bin/logd

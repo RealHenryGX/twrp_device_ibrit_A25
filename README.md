@@ -90,22 +90,36 @@ teardown (`rmmod` → `wiphy_unregister` → `klist_del`). This is separate from
 the recovery fstab path; the kernel panic is the current cause indicated by
 the captured logs for returning to recovery instead of Android.
 
-## Latest FBE runtime evidence (2026-11-17)
+## Latest FBE runtime evidence (2026-11-18)
 
 The external SD now enumerates in Windows Explorer as `A25 > Micro SDCard`
 (58.2 GB total, 35.1 GB available). The running local recovery has the corrected
 single-row `/etc/additional.fstab`; metadata decryption succeeds and creates
 `/dev/block/dm-3`, which is mounted at `/data`.
 
-The automatic startup attempt fails before PIN verification. The recovery log shows three failed
-`fscrypt_initialize_systemwide_keys` attempts after `Trying with wrappedkey`,
-then `Unable to decrypt FBE device`. Keystore2 AIDL is registered and stable
-with crash count 0, but Keystore2 selects SOFTWARE Keymaster. The vendor Gatekeeper service loads `SoftGatekeeper`, and
-the vendor image contains `libpuresoftkeymasterdevice.so` without a secure
-Keymaster MTEE/Trustonic service or matching TEE Gatekeeper implementation.
-The kernel starts Trusty/MTEE components, but the matching vendor userspace
-services and init fragments are absent from the mounted vendor image. This HAL
-inventory is not by itself the cause of the current DE key install failure.
+The corrected image from Actions run `44128288715` now packages the additional
+fstab before recovery startup. Its pre-PIN boot log shows the metadata-encrypted
+partition mapped to `/dev/block/dm-3`, `/data` mounted from that mapper, and
+`/system/etc/additional.fstab` containing the single correct A25 userdata row.
+The full job log, extracted image evidence, and fresh pre-PIN runtime dumps are
+under `pending/local-verify/a25-recovery-local/`.
+
+DE key setup still fails before PIN verification. The specific error is
+`Unable to find device keyring: Required key not available` immediately after
+`Installed fscrypt key with ref ... to /data`. AOSP's Android init creates a
+session keyring named `fscrypt` during its normal fs_mgr FBE mount path; the
+OrangeFox recovery path does not run that initialization. The vold retry then
+switches to wrapped-key mode even though A25's userdata fstab has no
+`wrappedkey_v0`, and its Keystore2 export attempt returns Keymaster error -33
+(`KM_ERROR_INVALID_KEY_BLOB`). That -33 is a downstream retry symptom, while
+the missing `fscrypt` session keyring is the first failure in this boot.
+
+Keymaster 4.1, Gatekeeper 1.0, and Keystore2 AIDL register and remain running;
+Keystore2 crash count is 0. Gatekeeper loads `SoftGatekeeper`, and no
+credential-match has been attempted in Recovery. A new source change adds a
+small init-stage helper to create the `fscrypt` session keyring before recovery
+crypto setup. WSL source checks pass; the helper still needs a GitHub build and
+fresh no-PIN runtime validation before asking the user to try Recovery unlock.
 
 The stock vendor `/data` fstab row uses FBE v2 and does not declare
 `wrappedkey_v0`; do not infer that flag from Recovery's `Trying with wrappedkey`
@@ -126,11 +140,14 @@ evidence.
 
 The user subsequently submitted a PIN through the recovery CLI and still got
 Signal 6. Per the user's instruction, logs from that attempt were not used.
-Reviewing TeamWin's `android_system_vold` `android-12.1` source shows that the
-`Trying with wrappedkey` message is emitted only after key retrieval succeeds
-and the first `install_storage_key()` fails; retrying with wrapped keys then
-fails as well. Focus the next probe on the fscrypt key-install ioctl and its
-errno. TeamWin's `android_bootable_recovery` `android-12.1` source also shows
+TeamWin's `android_system_vold` `android-12.1` source shows that the
+`Trying with wrappedkey` message is emitted only after the first
+`install_storage_key()` call fails. Fresh no-PIN logs from run `44128288715`
+now identify that first failure: the session keyring named `fscrypt` is absent
+(`Unable to find device keyring: Required key not available`). The wrapped-key
+retry then gets Keymaster `-33` from Keystore2. The system-wide DE failure is
+therefore already localized before Gatekeeper credential matching. TeamWin's
+`android_bootable_recovery` `android-12.1` source also shows
 that `Decrypt_Device()` falls into the legacy FDE `cryptfs_check_passwd()` path
 when `TW_IS_FBE` is false; that interface rejects FBE. The A25 recovery must
 preserve FBE classification through the CLI decrypt path and must not treat an
@@ -142,8 +159,10 @@ when DE key setup fails, tracks whether those keys are ready, and blocks both
 automatic and CLI fallback into the legacy FDE checker. Apply it to a clean
 `android_bootable_recovery` checkout with
 `tools/apply_fbe_recovery_patch.sh <path-to-bootable-recovery>` before building.
-The patch applies cleanly to OrangeFox `fox_12.1` at source commit `8d2aad1`;
-it has not yet been built into a recovery image.
+The patch applies cleanly to OrangeFox `fox_12.1` at source commit `8d2aad1`
+and is present in the successfully built run `44128288715`. Its fresh runtime
+evidence shows the remaining DE-key failure is the missing session keyring;
+the new keyring-init helper is pending as a separate device-tree change.
 
 ```
 #

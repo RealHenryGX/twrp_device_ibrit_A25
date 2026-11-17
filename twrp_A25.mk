@@ -24,6 +24,7 @@ PRODUCT_MANUFACTURER := ibrit
 PRODUCT_GMS_CLIENTID_BASE := android-ibrit
 
 PRODUCT_PACKAGES += \
+    a25_fscrypt_keyring \
     fscryptpolicyget.recovery \
     adbd.recovery
 

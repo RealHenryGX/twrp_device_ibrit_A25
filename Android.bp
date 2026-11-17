@@ -1,3 +1,9 @@
 // Keymaster/Gatekeeper are intentionally not copied into recovery.
 // init.recovery.mt6765.rc mounts the device's real /system and /vendor
 // partitions and starts the matching stock services from those partitions.
+
+cc_binary {
+    name: "a25_fscrypt_keyring",
+    srcs: ["recovery/a25_fscrypt_keyring.c"],
+    recovery: true,
+}

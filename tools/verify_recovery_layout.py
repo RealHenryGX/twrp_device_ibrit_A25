@@ -163,6 +163,29 @@ def main() -> int:
         ) and not args.ramdisk_root:
             continue
         require(ramdisk / relative)
+    keyring_source = ROOT / "recovery/a25_fscrypt_keyring.c"
+    require(keyring_source)
+    keyring_source_text = keyring_source.read_text(encoding="utf-8")
+    for token in (
+        "syscall(__NR_add_key",
+        '"keyring", "fscrypt"',
+        "KEY_SPEC_SESSION_KEYRING",
+    ):
+        if token not in keyring_source_text:
+            fail(f"A25 fscrypt keyring helper missing: {token}")
+    init_action = mt_rc.split("on init", 1)[1].split("\non ", 1)[0]
+    if "start a25_fscrypt_keyring" not in init_action:
+        fail("A25 fscrypt session keyring must be created during init before recovery crypto setup")
+    keyring_service = "service a25_fscrypt_keyring /system/bin/a25_fscrypt_keyring"
+    if keyring_service not in mt_rc:
+        fail("A25 fscrypt keyring init service is missing")
+    if args.ramdisk_root:
+        require(ramdisk / "system/bin/a25_fscrypt_keyring")
+    else:
+        product_mk = (ROOT / "twrp_A25.mk").read_text(encoding="utf-8")
+        android_bp = (ROOT / "Android.bp").read_text(encoding="utf-8")
+        if "a25_fscrypt_keyring" not in product_mk or "name: \"a25_fscrypt_keyring\"" not in android_bp:
+            fail("A25 fscrypt keyring helper must be built into the recovery ramdisk")
     logd_rc = mt_rc
     for token in (
         "service a25_logd /system_root/system/bin/logd",
