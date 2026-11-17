@@ -290,7 +290,8 @@ def main() -> int:
     for token in (
         "ensure_system_ro()",
         "mount -t ext4 -o ro",
-        "cat > \"$ADDITIONAL_FSTAB\"",
+        "printf '%s\\n' \"$DATA_FSTAB_ROW\" > \"$STAGED_ADDITIONAL_FSTAB\"",
+        "mount -o bind \"$STAGED_ADDITIONAL_FSTAB\" \"$ADDITIONAL_FSTAB\"",
         "chown 1017:1017 /tmp/a25-keystore2-db",
         "metadata_encryption=aes-256-xts",
         "setprop orangefox.a25_system.ready 1",
