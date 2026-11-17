@@ -103,6 +103,9 @@ PLATFORM_VERSION := 16.1.0
 
 # TWRP Configuration
 TW_THEME := portrait_hdpi
+# OrangeFox consumes this Make variable to compile its built-in button unlock
+# default into data.cpp; keep it explicit instead of relying only on shell env.
+OF_USE_LOCKSCREEN_BUTTON := 1
 # OF_SCREEN_H/OF_STATUS_H were tried (854/40) — made layout WORSE on the
 # tiny panel (theme is 1080x1920-designed; mismatched geometry constants
 # break centering more than defaults). Reverted to OFOX defaults.

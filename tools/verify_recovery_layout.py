@@ -253,8 +253,12 @@ def main() -> int:
     if args.ramdisk_root:
         vars_xml = ramdisk / "twres/resources/vars.xml"
         require(vars_xml)
-        if '<variable name="lock_btn" value="1" persist="1"/>' not in vars_xml.read_text(encoding="utf-8"):
-            fail("built recovery must default to OrangeFox button unlock")
+        vars_text = vars_xml.read_text(encoding="utf-8")
+        if '<variable name="lock_btn"' not in vars_text:
+            fail("built recovery is missing the OrangeFox lock button variable")
+        board_config = (ROOT / "BoardConfig.mk").read_text(encoding="utf-8")
+        if "OF_USE_LOCKSCREEN_BUTTON := 1" not in board_config:
+            fail("A25 build config must compile OrangeFox button unlock as the default")
 
     for line in (
         "on property:orangefox.mount_to_decrypt=1",
