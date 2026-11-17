@@ -299,6 +299,17 @@ def main() -> int:
         if token not in crypto_mount_text:
             fail(f"recovery crypto bootstrap missing: {token}")
 
+    fbe_patch = (ROOT / "patches/a25-preserve-fbe-on-de-key-failure.patch").read_text(encoding="utf-8")
+    for token in (
+        "bool fbe_metadata_ready = false;",
+        "if (!fbe_metadata_ready)",
+        "refusing legacy FDE decryption",
+        "data_partition->Key_Directory.empty()",
+        "tw_fbe_de_keys_ready",
+    ):
+        if token not in fbe_patch:
+            fail(f"FBE fallback protection missing: {token}")
+
     board_config = (ROOT / "BoardConfig.mk").read_text(encoding="utf-8")
     vendor_setup = (ROOT / "vendorsetup.sh").read_text(encoding="utf-8")
     if "export OF_USE_LOCKSCREEN_BUTTON=1" not in vendor_setup:

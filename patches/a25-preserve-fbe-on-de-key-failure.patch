@@ -70,3 +70,31 @@ index b52a7d4..4e4691d 100755
    // Mount any partitions that need to be mounted for decrypt
    for (iter = Partitions.begin(); iter != Partitions.end(); iter++)
      {
+
+diff --git a/partitionmanager.cpp b/partitionmanager.cpp
+--- a/partitionmanager.cpp
++++ b/partitionmanager.cpp
+@@ -675,0 +676,5 @@
++		// The configured key directory identifies FBE even when startup metadata setup fails.
++		if (!Decrypt_Data->Key_Directory.empty()) {
++			Decrypt_Data->Is_FBE = true;
++			DataManager::SetValue(TW_IS_FBE, 1);
++		}
+@@ -682,0 +688 @@
++			bool fbe_metadata_ready = false;
+@@ -685,0 +692 @@
++				fbe_metadata_ready = true;
+@@ -708,0 +716,5 @@
++			if (!fbe_metadata_ready) {
++				DataManager::SetValue(TW_IS_ENCRYPTED, 1);
++				gui_err("fbe_metadata_setup_failed=FBE metadata setup failed; refusing legacy FDE decryption.");
++				return;
++			}
+@@ -2335,0 +2348,7 @@
++  // CLI may run before startup synchronized the global FBE flag.
++  TWPartition *data_partition = Find_Partition_By_Path("/data");
++  if (data_partition && !data_partition->Key_Directory.empty()) {
++      data_partition->Is_FBE = true;
++      DataManager::SetValue(TW_IS_FBE, 1);
++  }
++
