@@ -165,3 +165,9 @@ The first Actions attempt for this correction (`44093082574`) applied the patch 
 ### Duplicate FBE patch hunk correction (2026-11-17)
 
 Actions run `44101136523` reached 94% and failed compiling `partitionmanager.cpp` at lines 4997–5010. The patch retained stale zero-context incremental hunks alongside the corrected context hunks, so the stale additions landed at end-of-file. No image was produced. The patch is now regenerated as one unified diff from OrangeFox source HEAD `8d2aad1`; applying it in a clean detached worktree and checking the resulting C++ diff both pass. The static verifier's source-tree mode stops on the build-generated `keystore2.rc`; the Actions verifier checks the extracted build ramdisk. Next: dispatch a new GitHub build after committing this patch, then investigate the reported Android boot failure first with read-only state checks. Logs from the latest CLI decrypt attempt remain unread.
+
+### Recovery loop and system FBE baseline (2026-11-17)
+
+When A25 kept returning to Recovery, `/dev/block/by-name/para` contained a standard BCB request (`boot-recovery` at offset 0, `recovery\n` at `0x40`). Back up the 2 KiB BCB, clear only that region, and preserve the rest of `para`; the device returned to Android. Check BCB state before branching into boot-image theories.
+
+Normal Android baseline: Android 12 completed boot with `ro.crypto.type=file`, metadata encryption enabled, `/data` on `dm-48` with `inlinecrypt`, Keystore2 and Keymaster 4.1 running, Gatekeeper 1.0 running, and user 0 `RUNNING_UNLOCKED`. Use these facts to compare the Recovery crypto path. Logs from the latest CLI decrypt attempt were not inspected.
