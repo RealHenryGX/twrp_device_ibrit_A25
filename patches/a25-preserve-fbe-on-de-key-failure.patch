@@ -33,76 +33,10 @@ index ef691b5..999e823 100644
  	DataManager::SetValue(TW_IS_FBE, 0);
  	return false;
 diff --git a/partitionmanager.cpp b/partitionmanager.cpp
-index b52a7d4..4e4691d 100755
+index b52a7d4..68229fe 100755
 --- a/partitionmanager.cpp
 +++ b/partitionmanager.cpp
-@@ -692,7 +692,8 @@ void TWPartitionManager::Decrypt_Data() {
- 				while (!Decrypt_Data->Mount(false) && --retry_count)
- 					usleep(500);
- 				if (Decrypt_Data->Mount(false)) {
--					if (!Decrypt_Data->Decrypt_FBE_DE()) {
-+					bool fbe_de_keys_ready = Decrypt_Data->Decrypt_FBE_DE();
-+					if (!fbe_de_keys_ready) {
- 						LOGERR("Unable to decrypt FBE device\n");
- 					}
- 
-@@ -708,7 +709,9 @@ void TWPartitionManager::Decrypt_Data() {
- 		}
- 		if (Decrypt_Data->Is_FBE) {
- 			if (DataManager::GetIntValue(TW_CRYPTO_PWTYPE) == 0) {
--				if (Decrypt_Device("!") == 0) {
-+				if (!DataManager::GetIntValue("tw_fbe_de_keys_ready")) {
-+					gui_err("fbe_de_keys_unavailable=FBE system keys could not be initialized.");
-+				} else if (Decrypt_Device("!") == 0) {
- 					gui_msg("decrypt_success=Successfully decrypted with default password.");
- 					DataManager::SetValue(TW_IS_ENCRYPTED, 0);
- 				} else {
-@@ -2330,6 +2333,12 @@ int TWPartitionManager::Decrypt_Device(string Password, int user_id) {
-   char crypto_blkdev[PROPERTY_VALUE_MAX];
-   std::vector < TWPartition * >::iterator iter;
- 
-+  if (DataManager::GetIntValue(TW_IS_FBE) &&
-+      !DataManager::GetIntValue("tw_fbe_de_keys_ready")) {
-+      gui_err("fbe_de_keys_unavailable=FBE system keys could not be initialized.");
-+      return -1;
-+  }
-+
-   // Mount any partitions that need to be mounted for decrypt
-   for (iter = Partitions.begin(); iter != Partitions.end(); iter++)
-     {
-
-diff --git a/partitionmanager.cpp b/partitionmanager.cpp
---- a/partitionmanager.cpp
-+++ b/partitionmanager.cpp
-@@ -675,0 +676,5 @@
-+		// The configured key directory identifies FBE even when startup metadata setup fails.
-+		if (!Decrypt_Data->Key_Directory.empty()) {
-+			Decrypt_Data->Is_FBE = true;
-+			DataManager::SetValue(TW_IS_FBE, 1);
-+		}
-@@ -682,0 +688 @@
-+			bool fbe_metadata_ready = false;
-@@ -685,0 +692 @@
-+				fbe_metadata_ready = true;
-@@ -708,0 +716,5 @@
-+			if (!fbe_metadata_ready) {
-+				DataManager::SetValue(TW_IS_ENCRYPTED, 1);
-+				gui_err("fbe_metadata_setup_failed=FBE metadata setup failed; refusing legacy FDE decryption.");
-+				return;
-+			}
-@@ -2335,0 +2348,7 @@
-+  // CLI may run before startup synchronized the global FBE flag.
-+  TWPartition *data_partition = Find_Partition_By_Path("/data");
-+  if (data_partition && !data_partition->Key_Directory.empty()) {
-+      data_partition->Is_FBE = true;
-+      DataManager::SetValue(TW_IS_FBE, 1);
-+  }
-+
-
-diff --git a/partitionmanager.cpp b/partitionmanager.cpp
---- a/partitionmanager.cpp
-+++ b/partitionmanager.cpp
-@@ -673,6 +673,11 @@
+@@ -673,6 +673,11 @@ void TWPartitionManager::Decrypt_Data() {
  	#ifdef TW_INCLUDE_CRYPTO
  	TWPartition* Decrypt_Data = Find_Partition_By_Path("/data");
  	if (Decrypt_Data && Decrypt_Data->Is_Encrypted && !Decrypt_Data->Is_Decrypted) {
@@ -114,7 +48,7 @@ diff --git a/partitionmanager.cpp b/partitionmanager.cpp
  		Set_Crypto_State();
  		TWPartition* Key_Directory_Partition = Find_Partition_By_Path(Decrypt_Data->Key_Directory);
  		if (Key_Directory_Partition != nullptr)
-@@ -680,9 +685,11 @@
+@@ -680,9 +685,11 @@ void TWPartitionManager::Decrypt_Data() {
  				Mount_By_Path(Decrypt_Data->Key_Directory, false);
  		if (!Decrypt_Data->Key_Directory.empty()) {
  			Set_Crypto_Type("file");
@@ -126,7 +60,17 @@ diff --git a/partitionmanager.cpp b/partitionmanager.cpp
  				std::string crypto_blkdev = android::base::GetProperty("ro.crypto.fs_crypto_blkdev", "error");
  				Decrypt_Data->Decrypted_Block_Device = crypto_blkdev;
  				LOGINFO("Successfully decrypted metadata encrypted data partition with new block device: '%s'\n", crypto_blkdev.c_str());
-@@ -706,6 +713,11 @@
+@@ -692,7 +699,8 @@ void TWPartitionManager::Decrypt_Data() {
+ 				while (!Decrypt_Data->Mount(false) && --retry_count)
+ 					usleep(500);
+ 				if (Decrypt_Data->Mount(false)) {
+-					if (!Decrypt_Data->Decrypt_FBE_DE()) {
++					bool fbe_de_keys_ready = Decrypt_Data->Decrypt_FBE_DE();
++					if (!fbe_de_keys_ready) {
+ 						LOGERR("Unable to decrypt FBE device\n");
+ 					}
+ 
+@@ -705,10 +713,17 @@ void TWPartitionManager::Decrypt_Data() {
  #else
  			LOGERR("Metadata FBE decrypt support not present in this build\n");
  #endif
@@ -138,7 +82,14 @@ diff --git a/partitionmanager.cpp b/partitionmanager.cpp
  		}
  		if (Decrypt_Data->Is_FBE) {
  			if (DataManager::GetIntValue(TW_CRYPTO_PWTYPE) == 0) {
-@@ -2333,6 +2345,13 @@
+-				if (Decrypt_Device("!") == 0) {
++				if (!DataManager::GetIntValue("tw_fbe_de_keys_ready")) {
++					gui_err("fbe_de_keys_unavailable=FBE system keys could not be initialized.");
++				} else if (Decrypt_Device("!") == 0) {
+ 					gui_msg("decrypt_success=Successfully decrypted with default password.");
+ 					DataManager::SetValue(TW_IS_ENCRYPTED, 0);
+ 				} else {
+@@ -2330,6 +2345,19 @@ int TWPartitionManager::Decrypt_Device(string Password, int user_id) {
    char crypto_blkdev[PROPERTY_VALUE_MAX];
    std::vector < TWPartition * >::iterator iter;
  
@@ -149,6 +100,12 @@ diff --git a/partitionmanager.cpp b/partitionmanager.cpp
 +      DataManager::SetValue(TW_IS_FBE, 1);
 +  }
 +
-   if (DataManager::GetIntValue(TW_IS_FBE) &&
-       !DataManager::GetIntValue("tw_fbe_de_keys_ready")) {
-       gui_err("fbe_de_keys_unavailable=FBE system keys could not be initialized.");
++  if (DataManager::GetIntValue(TW_IS_FBE) &&
++      !DataManager::GetIntValue("tw_fbe_de_keys_ready")) {
++      gui_err("fbe_de_keys_unavailable=FBE system keys could not be initialized.");
++      return -1;
++  }
++
+   // Mount any partitions that need to be mounted for decrypt
+   for (iter = Partitions.begin(); iter != Partitions.end(); iter++)
+     {

@@ -161,3 +161,7 @@ The earlier no-PIN startup evidence shows metadata setup and DE-key initializati
 
 
 The first Actions attempt for this correction (`44093082574`) applied the patch but failed during `partitionmanager.cpp` compilation. The CLI hunk had zero context and was placed at the file tail by `git apply`, producing syntax errors near line 4978. The patch is now regenerated with surrounding source context; the incremental diff applies cleanly against an LF copy of the OrangeFox source snapshot. The next Actions run must confirm the complete patch and C++ build before flashing.
+
+### Duplicate FBE patch hunk correction (2026-11-17)
+
+Actions run `44101136523` reached 94% and failed compiling `partitionmanager.cpp` at lines 4997–5010. The patch retained stale zero-context incremental hunks alongside the corrected context hunks, so the stale additions landed at end-of-file. No image was produced. The patch is now regenerated as one unified diff from OrangeFox source HEAD `8d2aad1`; applying it in a clean detached worktree and checking the resulting C++ diff both pass. The static verifier's source-tree mode stops on the build-generated `keystore2.rc`; the Actions verifier checks the extracted build ramdisk. Next: dispatch a new GitHub build after committing this patch, then investigate the reported Android boot failure first with read-only state checks. Logs from the latest CLI decrypt attempt remain unread.
