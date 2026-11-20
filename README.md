@@ -2,7 +2,7 @@
 
 Recovery framebuffer is 384x854. `TW_THEME` selects the available
 `portrait_hdpi` image assets, while `TW_CUSTOM_THEME` supplies
-`recovery/theme-a25-480x800.xml` with compact 480x800 coordinates and fonts.
+`recovery/theme-a25-480x800/ui.xml` with compact 480x800 coordinates and fonts.
 The build verifier checks the custom XML in source and in the built ramdisk.
 
 `recovery.fstab` is the TWRP-format table selected by `TARGET_RECOVERY_FSTAB`.
