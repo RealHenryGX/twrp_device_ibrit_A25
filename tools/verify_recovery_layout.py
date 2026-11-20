@@ -57,10 +57,24 @@ def main() -> int:
         stock_theme_xml = ROOT.parents[2] / "bootable/recovery/gui/theme/portrait_hdpi/ui.xml"
         require(stock_theme_xml)
         stock_theme_root = ET.parse(stock_theme_xml).getroot()
-        custom_images = {node.attrib.get("name") for node in gui_root.findall("./resources/image")}
-        stock_images = {node.attrib.get("name") for node in stock_theme_root.findall("./resources/image")}
-        if custom_images != stock_images:
-            fail("A25 custom UI image resources must match the available portrait_hdpi asset set")
+        custom_images = {
+            node.attrib.get("name"): node.attrib.get("filename")
+            for node in gui_root.findall("./resources/image")
+        }
+        stock_images = {
+            node.attrib.get("name"): node.attrib.get("filename")
+            for node in stock_theme_root.findall("./resources/image")
+        }
+        incompatible = {
+            name: filename
+            for name, filename in custom_images.items()
+            if stock_images.get(name) != filename
+        }
+        if incompatible:
+            fail(
+                "A25 custom UI image resources are missing or map to different files "
+                f"in portrait_hdpi: {incompatible}"
+            )
     if not args.ramdisk_root:
         board_config = (ROOT / "BoardConfig.mk").read_text(encoding="utf-8")
         if "TW_THEME := portrait_hdpi" not in board_config or "TW_CUSTOM_THEME := device/ibrit/A25/recovery/theme-a25-480x800/ui.xml" not in board_config:
