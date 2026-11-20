@@ -223,4 +223,9 @@ The authorized Recovery capture is from serial `0123456789ABCDEF`, product `A25`
 
 The same Recovery capture mounted metadata-encrypted `/data` at `/dev/block/dm-3`; Keystore2 upgraded the metadata, unencrypted, and user 0 DE key blobs. Two user 0 credential checks reached Gatekeeper, which emitted `request reenroll` both times; Keystore2, Keymaster, and Gatekeeper remained running, with `keystore.crash_count=0`. CE decryption then failed in `unwrapSyntheticPasswordBlob`: the spblob v2/v3 path returned `KEY_NOT_FOUND` from Keystore2 `getKeyEntry`. There is no Signal 6/backtrace in this capture. This places the remaining failure after credential verification, at locating the CE spblob's KeyStore key; it does not yet identify why that alias is missing.
 
-Source review found a concrete alias mismatch: `Decrypt.cpp` requests `USRSKEY_synthetic_password_<handle>`, while `KeystoreInfo::getAlias()` generated `synthetic_password_<handle>`. `a25_mount_crypto_vendor.sh` applies `patches/a25-fix-synthetic-password-alias.patch` after `/system` is available and before it publishes the ready properties or starts crypto HALs. A patch failure prevents the HAL startup gate from opening. The ramdisk verifier checks the patch helper is staged and invoked by the crypto bootstrap. The local source check confirms the prefixes agree. This is a candidate for the observed `KEY_NOT_FOUND` and needs a build plus fresh Recovery runtime confirmation.
+The Keystore2 lookup calls `KeystoreInfo::getAlias()` and uses SELinux
+namespace 103. Android 16 LockSettingsService uses the logical alias
+`synthetic_password_<handle>` in that namespace. Keep the upstream alias.
+The current Recovery Keystore2 starts with a temporary database so metadata
+can be decrypted before userdata is mounted. Access to the installed system
+Keystore2 state for credential encrypted storage remains to be validated.

@@ -12,7 +12,6 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 HELPER = ROOT / "recovery/root/sbin/a25_mount_crypto_vendor.sh"
-ALIAS_PATCH = ROOT / "tools/apply_synthetic_password_alias_patch.sh"
 TEST_ROOT = ROOT.parent / "local-verify"
 EXPECTED_DATA_FSTAB = (
     "/dev/block/by-name/userdata /data ext4 noatime,nosuid,nodev,noauto_da_alloc,errors=panic,inlinecrypt "
@@ -25,26 +24,6 @@ EXPECTED_DATA_FSTAB = (
 def executable(path: Path, content: str) -> None:
     path.write_text(content, encoding="utf-8", newline="\n")
     path.chmod(0o755)
-
-
-def test_alias_patch_apply_and_repeat() -> None:
-    case = Path(tempfile.mkdtemp(prefix="crypto-vendor-alias-patch-", dir=TEST_ROOT))
-    try:
-        vold = case / "system" / "vold"
-        vold.mkdir(parents=True)
-        header = vold / "KeystoreInfo.hpp"
-        actual_header = (ROOT.parent / "local-verify/a25-recovery-local/src-android_system_vold/KeystoreInfo.hpp").read_text(encoding="utf-8")
-        header.write_text(actual_header.replace('"USRSKEY_synthetic_password_"', '"synthetic_password_"'), encoding="utf-8")
-        patch_bin = shutil.which("patch")
-        assert patch_bin, "patch utility required for alias patch check"
-        env = os.environ.copy()
-        env["A25_PATCH_BIN"] = patch_bin
-        for _ in range(2):
-            result = subprocess.run(["bash", str(ALIAS_PATCH), str(vold)], env=env, text=True, capture_output=True, check=False)
-            assert result.returncode == 0, (result.returncode, result.stdout, result.stderr)
-        assert '"USRSKEY_synthetic_password_"' in header.read_text(encoding="utf-8")
-    finally:
-        shutil.rmtree(case)
 
 
 def run_case(name: str, *, already_mounted: bool, additional_fstab_present: bool) -> None:
@@ -211,7 +190,6 @@ def run_case(name: str, *, already_mounted: bool, additional_fstab_present: bool
 def main() -> None:
     TEST_ROOT.mkdir(parents=True, exist_ok=True)
     subprocess.run(["sh", "-n", str(HELPER)], check=True)
-    test_alias_patch_apply_and_repeat()
     run_case("already-ready", already_mounted=True, additional_fstab_present=True)
     run_case("mapper-arrives-after-start", already_mounted=False, additional_fstab_present=True)
     run_case("additional-fstab-skipped", already_mounted=True, additional_fstab_present=False)
