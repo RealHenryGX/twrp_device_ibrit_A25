@@ -162,7 +162,7 @@ automatic and CLI fallback into the legacy FDE checker. Apply it to a clean
 The patch applies cleanly to OrangeFox `fox_12.1` at source commit `8d2aad1`
 and is present in the successfully built run `44128288715`. Its fresh runtime
 evidence shows the remaining DE-key failure is the missing session keyring;
-the new keyring-init helper is pending as a separate device-tree change.
+the keyring-init helper is now built and confirmed running on device; it creates the `fscrypt` session keyring. The later metadata failure is in Keymaster blob upgrade, not keyring setup.
 
 ```
 #
@@ -197,4 +197,14 @@ A fresh Recovery boot on the connected A25 logged `Skipping Additional Fstab Pro
 
 The corrected one-row fs_mgr file is now staged at `recovery/root/system/etc/additional.fstab` and added to `PRODUCT_COPY_FILES`, so `/etc/additional.fstab` exists before OrangeFox parses encrypted userdata. The helper also creates it immediately if missing and validates its contents before publishing system-ready. A temporary live run of the modified helper on A25 created the expected row, returned 0, and left Keymaster, Gatekeeper, and Keystore2 running. No Recovery PIN was entered and no second decrypt was triggered.
 
-Fresh no-PIN logcat confirms Keymaster 4.1 and Gatekeeper 1.0 HIDL registration, successful Keystore2 shared-secret negotiation and AIDL service registration, and `keystore.crash_count=0`; the three service processes remained running in a second snapshot 30 seconds later. Recovery Gatekeeper has not yet had a credential match. WSL crypto-helper, MTP, and recovery-layout checks pass. Next: commit this fstab bootstrap correction, build with GitHub Actions, verify the produced ramdisk contains the packaged file, then test its startup DE path from the Recovery image.
+Fresh no-PIN logcat for that earlier image confirmed Keymaster 4.1 and Gatekeeper 1.0 HIDL registration, successful Keystore2 shared-secret negotiation and AIDL service registration, and `keystore.crash_count=0`; the three service processes remained running in a second snapshot 30 seconds later. Recovery Gatekeeper had not yet had a credential match. The fstab bootstrap correction was subsequently built and device-verified in run `44142444216`; later Keymaster findings and the current patch-level candidate are recorded below.
+
+### Actions 44142444216 and normal-system unlock baseline (2026-11-18)
+
+Actions run `44142444216` built and passed image verification; the resulting image was bootloader-flashed and readback-hash verified. Fresh no-PIN Recovery logs show the fscrypt session keyring helper now runs. Metadata setup then fails during Keystore2 `createOperation`: its `upgrade_keyblob_if_required_with` path reports `Upgrade failed` because Keymaster `upgradeKey` returned `-38` (`KM_ERROR_INVALID_ARGUMENT`). The Recovery service is detected as SOFTWARE (`libpuresoftkeymasterdevice.so`). Keystore2 AIDL remains registered and has no crash; Gatekeeper is software-backed. The run never reached a Recovery credential check.
+
+After the user normally unlocked Android, logs confirmed successful Gatekeeper credential verification and CE-key installation for user 0 (`RUNNING_UNLOCKED`). This is the normal-system comparison baseline, not evidence that the Recovery Keymaster path is equivalent. The vendor init configuration references MTEE Keymaster and `wait_for_keymaster` files that are absent on the mounted vendor partition; the generic Keymaster service is present. Continue by identifying the provider used by normal Android and the required Recovery operation parameters. The user's latest CLI Signal 6 logs remain unread.
+
+### Vendor security-patch alignment candidate (2026-11-20)
+
+Normal Android reports `ro.build.version.security_patch=2025-12-01` and `ro.vendor.build.security_patch=2024-03-05`; `/vendor/build.prop` contains that vendor value. Recovery inherited `ro.vendor.build.security_patch=2099-12-31` from the device-tree build settings, while the crypto helper only synced `ro.build.*` before launching Keymaster. OrangeFox's `prepdecrypt.sh` separately syncs the vendor patch property from `/vendor/build.prop`. The helper now does the same before starting crypto HALs. Its existing WSL verification passes and asserts property-reset ordering. This may address the `KEY_REQUIRES_UPGRADE` / `upgradeKey -38` failure; fresh Recovery runtime validation is still required. The current Recovery log was excluded because it may contain user decrypt activity.

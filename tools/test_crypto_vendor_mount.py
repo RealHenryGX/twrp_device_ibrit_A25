@@ -50,6 +50,11 @@ def run_case(name: str, *, already_mounted: bool, additional_fstab_present: bool
             "ro.build.version.security_patch=2025-12-01\n",
             encoding="ascii",
         )
+        vendor_build_prop = case / "vendor-build.prop"
+        vendor_build_prop.write_text(
+            "ro.vendor.build.security_patch=2024-03-05\n",
+            encoding="ascii",
+        )
         additional_fstab = case / "additional.fstab"
         if additional_fstab_present:
             additional_fstab.write_text(
@@ -135,6 +140,7 @@ def run_case(name: str, *, already_mounted: bool, additional_fstab_present: bool
             A25_TEST_SEQUENCE=str(case / "crypto-start-sequence.log"),
             A25_PROC_MOUNTS=str(mounts),
             A25_SYSTEM_BUILD_PROP=str(system_build_prop),
+            A25_VENDOR_BUILD_PROP=str(vendor_build_prop),
             TMPDIR=str(case / "missing-tmp"),
         )
         result = subprocess.run(["bash", str(HELPER)], env=env, text=True, capture_output=True, check=False)
@@ -155,12 +161,14 @@ def run_case(name: str, *, already_mounted: bool, additional_fstab_present: bool
             "ro.build.version.release=16",
             "ro.build.version.sdk=36",
             "ro.build.version.security_patch=2025-12-01",
+            "ro.vendor.build.security_patch=2024-03-05",
         ]
         assert resetprop_log.read_text(encoding="ascii").splitlines() == expected_prop_sync * 2
         expected_sequence = [
             "reset ro.build.version.release=16",
             "reset ro.build.version.sdk=36",
             "reset ro.build.version.security_patch=2025-12-01",
+            "reset ro.vendor.build.security_patch=2024-03-05",
             "start vendor.keymaster-4-1",
             "start vendor.gatekeeper-1-0",
         ]

@@ -9,6 +9,7 @@ ADDITIONAL_FSTAB=${A25_ADDITIONAL_FSTAB:-/etc/additional.fstab}
 STAGED_ADDITIONAL_FSTAB=${A25_STAGED_ADDITIONAL_FSTAB:-/tmp/a25-additional.fstab}
 STATUS_FILE=${A25_CRYPTO_VENDOR_STATUS_FILE:-/tmp/a25_mount_crypto_vendor.status}
 SYSTEM_BUILD_PROP=${A25_SYSTEM_BUILD_PROP:-$SYSTEM_MOUNT/system/build.prop}
+VENDOR_BUILD_PROP=${A25_VENDOR_BUILD_PROP:-$VENDOR_MOUNT/build.prop}
 DATA_FSTAB_ROW='/dev/block/by-name/userdata /data ext4 noatime,nosuid,nodev,noauto_da_alloc,errors=panic,inlinecrypt latemount,wait,check,quota,reservedsize=128M,formattable,checkpoint=block,fileencryption=aes-256-xts:aes-256-cts:v2,keydirectory=/metadata/vold/metadata_encryption,metadata_encryption=aes-256-xts'
 
 is_expected_additional_fstab() {
@@ -79,6 +80,9 @@ start_crypto_hals() {
         [ -n "$value" ] || return 1
         "$resetprop_bin" -n "$key" "$value" || return 1
     done
+    vendor_patch="$(sed -n 's/^ro.vendor.build.security_patch=//p' "$VENDOR_BUILD_PROP" | head -n 1)"
+    [ -n "$vendor_patch" ] || return 1
+    "$resetprop_bin" -n ro.vendor.build.security_patch "$vendor_patch" || return 1
     setprop ctl.start vendor.keymaster-4-1
     setprop ctl.start vendor.gatekeeper-1-0
 }
