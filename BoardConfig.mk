@@ -102,13 +102,13 @@ VENDOR_SECURITY_PATCH := 2099-12-31
 PLATFORM_VERSION := 16.1.0
 
 # TWRP Configuration
-TW_THEME := portrait_mdpi
+TW_THEME := portrait_hdpi
+# OrangeFox's android-12.1 checkout may omit the stock portrait_mdpi/ui.xml.
+# Keep its hdpi image resources, but load A25's compact 480x800 GUI XML.
+TW_CUSTOM_THEME := device/ibrit/A25/recovery/theme-a25-480x800.xml
 # OrangeFox consumes this Make variable to compile its built-in button unlock
 # default into data.cpp; keep it explicit instead of relying only on shell env.
 OF_USE_LOCKSCREEN_BUTTON := 1
-# OF_SCREEN_H/OF_STATUS_H were tried (854/40) — made layout WORSE on the
-# tiny panel (theme is 1080x1920-designed; mismatched geometry constants
-# break centering more than defaults). Reverted to OFOX defaults.
 # TW_EXTRA_LANGUAGES is REQUIRED for TWRP GUI (removing it hangs TWRP on boot
 # — font lookup fails). But OrangeFox ships its own fonts AND its ramdisk is
 # bigger, so extra-languages' 3.8MB CJK fonts push OFOX over the 32MB limit.

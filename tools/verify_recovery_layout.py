@@ -10,6 +10,7 @@ from pathlib import Path
 import argparse
 import re
 import sys
+import xml.etree.ElementTree as ET
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -43,6 +44,27 @@ def main() -> int:
     fstab_path = ramdisk / "fstab.mt6765" if args.ramdisk_root else ROOT / "recovery/root/fstab.mt6765"
     require(fstab_path)
     fstab = fstab_path.read_text(encoding="utf-8")
+    gui_xml = ramdisk / "twres/ui.xml" if args.ramdisk_root else ROOT / "recovery/theme-a25-480x800.xml"
+    require(gui_xml)
+    try:
+        gui_root = ET.parse(gui_xml).getroot()
+    except ET.ParseError as exc:
+        fail(f"A25 Recovery GUI XML is invalid: {exc}")
+    resolution = gui_root.find("./details/resolution")
+    if resolution is None or resolution.attrib != {"width": "480", "height": "800"}:
+        fail("A25 Recovery GUI must use the verified 480x800 layout")
+    if args.ramdisk_root:
+        stock_theme_xml = ROOT.parents[2] / "bootable/recovery/gui/theme/portrait_hdpi/ui.xml"
+        require(stock_theme_xml)
+        stock_theme_root = ET.parse(stock_theme_xml).getroot()
+        custom_images = {node.attrib.get("name") for node in gui_root.findall("./resources/image")}
+        stock_images = {node.attrib.get("name") for node in stock_theme_root.findall("./resources/image")}
+        if custom_images != stock_images:
+            fail("A25 custom UI image resources must match the available portrait_hdpi asset set")
+    if not args.ramdisk_root:
+        board_config = (ROOT / "BoardConfig.mk").read_text(encoding="utf-8")
+        if "TW_THEME := portrait_hdpi" not in board_config or "TW_CUSTOM_THEME := device/ibrit/A25/recovery/theme-a25-480x800.xml" not in board_config:
+            fail("A25 must load its 480x800 custom UI over the available portrait_hdpi image resources")
     require(ramdisk / "init.recovery.usb.rc")
     usb_rc = (ramdisk / "init.recovery.usb.rc").read_text(encoding="utf-8")
 
