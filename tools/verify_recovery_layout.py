@@ -44,6 +44,11 @@ def main() -> int:
     require(fstab_path)
     fstab = fstab_path.read_text(encoding="utf-8")
     require(ramdisk / "init.recovery.usb.rc")
+    alias_patch_script = ramdisk / "sbin/apply_synthetic_password_alias_patch.sh" if args.ramdisk_root else ROOT / "tools/apply_synthetic_password_alias_patch.sh"
+    alias_patch_helper = (ramdisk / "sbin/a25_mount_crypto_vendor.sh" if args.ramdisk_root else ROOT / "recovery/root/sbin/a25_mount_crypto_vendor.sh")
+    require(alias_patch_script)
+    if 'ALIAS_PATCH=${A25_SYNTHETIC_PASSWORD_ALIAS_PATCH:-/sbin/apply_synthetic_password_alias_patch.sh}' not in alias_patch_helper.read_text(encoding="utf-8"):
+        fail("crypto bootstrap must apply the synthetic-password alias fix before HAL startup")
     usb_rc = (ramdisk / "init.recovery.usb.rc").read_text(encoding="utf-8")
 
     if "import /init.recovery.mt6765.rc" not in usb_rc:

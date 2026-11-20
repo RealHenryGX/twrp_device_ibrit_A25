@@ -1,5 +1,11 @@
 # Android device tree for iku A25 (A25)
 
+Recovery framebuffer is 384x854. `TW_THEME` selects `portrait_mdpi` (480x800)
+so the UI text and row geometry match the panel more closely. The earlier
+`portrait_hdpi` theme uses a 1080x1920 canvas and scales width and height by
+different ratios on this device, contributing to crowded menu labels and
+checkbox rows.
+
 `recovery.fstab` is the TWRP-format table selected by `TARGET_RECOVERY_FSTAB`.
 OrangeFox stages it at `/system/etc/recovery.fstab`; `/etc/recovery.fstab`
 resolves there through a ramdisk symlink. Android fs_mgr uses the separate
@@ -207,4 +213,12 @@ After the user normally unlocked Android, logs confirmed successful Gatekeeper c
 
 ### Vendor security-patch alignment candidate (2026-11-20)
 
-Normal Android reports `ro.build.version.security_patch=2025-12-01` and `ro.vendor.build.security_patch=2024-03-05`; `/vendor/build.prop` contains that vendor value. Recovery inherited `ro.vendor.build.security_patch=2099-12-31` from the device-tree build settings, while the crypto helper only synced `ro.build.*` before launching Keymaster. OrangeFox's `prepdecrypt.sh` separately syncs the vendor patch property from `/vendor/build.prop`. The helper now does the same before starting crypto HALs. Its existing WSL verification passes and asserts property-reset ordering. This may address the `KEY_REQUIRES_UPGRADE` / `upgradeKey -38` failure; fresh Recovery runtime validation is still required. The current Recovery log was excluded because it may contain user decrypt activity.
+Normal Android reports `ro.build.version.security_patch=2025-12-01` and `ro.vendor.build.security_patch=2024-03-05`; `/vendor/build.prop` contains that vendor value. Recovery inherited `ro.vendor.build.security_patch=2099-12-31` from the device-tree build settings, while the crypto helper only synced `ro.build.*` before launching Keymaster. OrangeFox's `prepdecrypt.sh` separately syncs the vendor patch property from `/vendor/build.prop`. The helper now does the same before starting crypto HALs. Its existing WSL verification passes and asserts property-reset ordering. The current authorized Recovery logs still show `2099-12-31`, so the correction has not yet been device-verified; metadata and DE key upgrades succeed in this boot, while CE spblob unwrap fails at Keystore2 `getKeyEntry` with `KEY_NOT_FOUND`.
+
+### Authorized Recovery evidence and display theme (2026-11-20)
+
+The user authorized inspection of current Recovery logs. Device identity in the capture is serial `0123456789ABCDEF`, product `A25`. The 384x854 framebuffer loaded the 1080x1920 `portrait_hdpi` theme, with GUI scaling factors 0.355556 horizontally and 0.444792 vertically. The device now selects `portrait_mdpi` (480x800), whose XML/font scale is closer to the panel. Local XML parsing and the device-tree layout verifier pass; the change awaits a build and visual confirmation on-device.
+
+The same Recovery capture mounted metadata-encrypted `/data` at `/dev/block/dm-3`; Keystore2 upgraded the metadata, unencrypted, and user 0 DE key blobs. Two user 0 credential checks reached Gatekeeper, which emitted `request reenroll` both times; Keystore2, Keymaster, and Gatekeeper remained running, with `keystore.crash_count=0`. CE decryption then failed in `unwrapSyntheticPasswordBlob`: the spblob v2/v3 path returned `KEY_NOT_FOUND` from Keystore2 `getKeyEntry`. There is no Signal 6/backtrace in this capture. This places the remaining failure after credential verification, at locating the CE spblob's KeyStore key; it does not yet identify why that alias is missing.
+
+Source review found a concrete alias mismatch: `Decrypt.cpp` requests `USRSKEY_synthetic_password_<handle>`, while `KeystoreInfo::getAlias()` generated `synthetic_password_<handle>`. `a25_mount_crypto_vendor.sh` applies `patches/a25-fix-synthetic-password-alias.patch` after `/system` is available and before it publishes the ready properties or starts crypto HALs. A patch failure prevents the HAL startup gate from opening. The ramdisk verifier checks the patch helper is staged and invoked by the crypto bootstrap. The local source check confirms the prefixes agree. This is a candidate for the observed `KEY_NOT_FOUND` and needs a build plus fresh Recovery runtime confirmation.

@@ -102,7 +102,7 @@ VENDOR_SECURITY_PATCH := 2099-12-31
 PLATFORM_VERSION := 16.1.0
 
 # TWRP Configuration
-TW_THEME := portrait_hdpi
+TW_THEME := portrait_mdpi
 # OrangeFox consumes this Make variable to compile its built-in button unlock
 # default into data.cpp; keep it explicit instead of relying only on shell env.
 OF_USE_LOCKSCREEN_BUTTON := 1
