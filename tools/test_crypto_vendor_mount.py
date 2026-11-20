@@ -85,7 +85,6 @@ def run_case(name: str, *, already_mounted: bool, additional_fstab_present: bool
             )
         staged_fstab = case / "a25-additional.fstab"
         staged_fstab.touch()
-        ctl_log = case / "ctl-start.log"
         resetprop_log = case / "resetprop.log"
         mounts = case / "mounts"
         if already_mounted:
@@ -111,7 +110,7 @@ def run_case(name: str, *, already_mounted: bool, additional_fstab_present: bool
             "#!/bin/sh\n"
             "tmp=\"$A25_TEST_PROPS.tmp\"; awk -F= -v key=\"$1\" '$1 != key' \"$A25_TEST_PROPS\" > \"$tmp\"\n"
             "printf '%s=%s\\n' \"$1\" \"$2\" >> \"$tmp\"; mv \"$tmp\" \"$A25_TEST_PROPS\"\n"
-            "if [ \"$1\" = ctl.start ]; then printf '%s\\n' \"$2\" >> \"$A25_TEST_CTL\"; printf 'start %s\\n' \"$2\" >> \"$A25_TEST_SEQUENCE\"; fi\n",
+            "printf 'set %s=%s\\n' \"$1\" \"$2\" >> \"$A25_TEST_SEQUENCE\"\n",
         )
         executable(
             bin_dir / "resetprop",
@@ -156,7 +155,6 @@ def run_case(name: str, *, already_mounted: bool, additional_fstab_present: bool
             A25_ADDITIONAL_FSTAB=str(additional_fstab),
             A25_STAGED_ADDITIONAL_FSTAB=str(staged_fstab),
             A25_CRYPTO_VENDOR_STATUS_FILE=str(case / "status"),
-            A25_TEST_CTL=str(ctl_log),
             A25_TEST_RESETPROP=str(resetprop_log),
             A25_TEST_SEQUENCE=str(case / "crypto-start-sequence.log"),
             A25_PROC_MOUNTS=str(mounts),
@@ -173,11 +171,6 @@ def run_case(name: str, *, already_mounted: bool, additional_fstab_present: bool
         final_props = dict(line.split("=", 1) for line in props.read_text(encoding="ascii").splitlines())
         assert final_props["orangefox.a25_vendor.ready"] == "1", final_props
         assert final_props["orangefox.a25_system.ready"] == "1", final_props
-        expected_crypto_starts = [
-            "vendor.keymaster-4-1",
-            "vendor.gatekeeper-1-0",
-        ]
-        assert ctl_log.read_text(encoding="ascii").splitlines() == expected_crypto_starts * 2
         expected_prop_sync = [
             "ro.build.version.release=16",
             "ro.build.version.sdk=36",
@@ -190,10 +183,14 @@ def run_case(name: str, *, already_mounted: bool, additional_fstab_present: bool
             "reset ro.build.version.sdk=36",
             "reset ro.build.version.security_patch=2025-12-01",
             "reset ro.vendor.build.security_patch=2024-03-05",
-            "start vendor.keymaster-4-1",
-            "start vendor.gatekeeper-1-0",
+            "set orangefox.a25_system.ready=1",
         ]
-        assert (case / "crypto-start-sequence.log").read_text(encoding="ascii").splitlines() == expected_sequence * 2
+        first_sequence = expected_sequence if already_mounted else [
+            "set orangefox.a25_vendor.ready=0",
+            *expected_sequence,
+            "set orangefox.a25_vendor.ready=1",
+        ]
+        assert (case / "crypto-start-sequence.log").read_text(encoding="ascii").splitlines() == first_sequence + expected_sequence
         assert additional_fstab.read_text(encoding="utf-8").splitlines() == [EXPECTED_DATA_FSTAB]
         expected_status = "additional-fstab-corrected" if additional_fstab_present else "additional-fstab-created"
         assert expected_status in first_status

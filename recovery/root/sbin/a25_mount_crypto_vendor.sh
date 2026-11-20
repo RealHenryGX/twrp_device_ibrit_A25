@@ -70,8 +70,7 @@ ensure_additional_fstab() {
     printf '%s\n' additional-fstab-corrected > "$STATUS_FILE"
 }
 
-start_crypto_hals() {
-    [ "$(getprop init.svc.servicemanager)" = running ] || return 0
+sync_crypto_build_properties() {
     resetprop_bin=${A25_RESETPROP:-$(command -v resetprop)}
     [ -x "$resetprop_bin" ] || return 1
     [ -f "$SYSTEM_BUILD_PROP" ] || return 1
@@ -82,9 +81,7 @@ start_crypto_hals() {
     done
     vendor_patch="$(sed -n 's/^ro.vendor.build.security_patch=//p' "$VENDOR_BUILD_PROP" | head -n 1)"
     [ -n "$vendor_patch" ] || return 1
-    "$resetprop_bin" -n ro.vendor.build.security_patch "$vendor_patch" || return 1
-    setprop ctl.start vendor.keymaster-4-1
-    setprop ctl.start vendor.gatekeeper-1-0
+    "$resetprop_bin" -n ro.vendor.build.security_patch "$vendor_patch"
 }
 
 prepare_crypto_recovery() {
@@ -99,24 +96,26 @@ prepare_crypto_recovery() {
     mkdir -p /tmp/a25-keystore2-db || return 1
     chown 1017:1017 /tmp/a25-keystore2-db || return 1
     chmod 0700 /tmp/a25-keystore2-db || return 1
+    sync_crypto_build_properties || {
+        printf '%s\n' crypto-build-properties-sync-failed > "$STATUS_FILE"
+        return 1
+    }
     setprop orangefox.a25_system.ready 1
 }
 
 # post-fs and recovery startup may both start this oneshot. Preserve a ready
 # HAL window when vendor is already mounted; retry only if the mount vanished.
 if [ "$(getprop orangefox.a25_vendor.ready)" = 1 ] && ensure_vendor_ro; then
-    prepare_crypto_recovery || exit $?
-    start_crypto_hals
+    prepare_crypto_recovery
     exit $?
 fi
 
 setprop orangefox.a25_vendor.ready 0
 while :; do
     if [ -e "$VENDOR_BLOCK" ] && ensure_vendor_ro; then
-        prepare_crypto_recovery || :
+        prepare_crypto_recovery || exit $?
         setprop orangefox.a25_vendor.ready 1
-        start_crypto_hals
-        exit 0
+        exit $?
     fi
     sleep 0.2
 done
