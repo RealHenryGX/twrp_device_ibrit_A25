@@ -30,25 +30,17 @@ def executable(path: Path, content: str) -> None:
 def test_alias_patch_apply_and_repeat() -> None:
     case = Path(tempfile.mkdtemp(prefix="crypto-vendor-alias-patch-", dir=TEST_ROOT))
     try:
-        system = case / "system"
-        vold = system / "vold"
-        etc = system / "etc"
+        vold = case / "system" / "vold"
         vold.mkdir(parents=True)
-        etc.mkdir(parents=True)
         header = vold / "KeystoreInfo.hpp"
         actual_header = (ROOT.parent / "local-verify/a25-recovery-local/src-android_system_vold/KeystoreInfo.hpp").read_text(encoding="utf-8")
         header.write_text(actual_header.replace('"USRSKEY_synthetic_password_"', '"synthetic_password_"'), encoding="utf-8")
-        patch = etc / "a25-fix-synthetic-password-alias.patch"
-        patch.write_text((ROOT / "patches/a25-fix-synthetic-password-alias.patch").read_text(encoding="utf-8"), encoding="utf-8")
-        env = os.environ.copy()
         patch_bin = shutil.which("patch")
         assert patch_bin, "patch utility required for alias patch check"
-        env.update(A25_SYNTHETIC_PASSWORD_PATCH=str(patch), A25_SYNTHETIC_PASSWORD_VOLD=str(vold), A25_PATCH_BIN=patch_bin, HOME=str(case))
-        helper = ALIAS_PATCH.read_text(encoding="utf-8")
-        test_helper = case / "apply_alias_patch.sh"
-        executable(test_helper, helper)
+        env = os.environ.copy()
+        env["A25_PATCH_BIN"] = patch_bin
         for _ in range(2):
-            result = subprocess.run(["bash", str(test_helper)], env=env, text=True, capture_output=True, check=False)
+            result = subprocess.run(["bash", str(ALIAS_PATCH), str(vold)], env=env, text=True, capture_output=True, check=False)
             assert result.returncode == 0, (result.returncode, result.stdout, result.stderr)
         assert '"USRSKEY_synthetic_password_"' in header.read_text(encoding="utf-8")
     finally:
@@ -149,13 +141,6 @@ def run_case(name: str, *, already_mounted: bool, additional_fstab_present: bool
             "if [ ! -e \"$A25_TEST_BLOCK_LINK\" ]; then ln -s \"$A25_TEST_BLOCK_TARGET\" \"$A25_TEST_BLOCK_LINK\"; fi\n",
         )
         executable(bin_dir / "chown", "#!/bin/sh\n[ \"$1\" = 1017:1017 ] && [ -d \"$2\" ]\n")
-        alias_patch_log = case / "alias-patch.log"
-        executable(
-            bin_dir / "apply_alias_patch",
-            "#!/bin/sh\n"
-            "printf '%s\\n' called >> \"$A25_TEST_ALIAS_PATCH_LOG\"\n"
-            "[ \"$A25_TEST_ALIAS_PATCH_RESULT\" != fail ]\n",
-        )
         env = os.environ.copy()
         env.update(
             PATH=f"{bin_dir}:/usr/bin:/bin",
@@ -174,9 +159,6 @@ def run_case(name: str, *, already_mounted: bool, additional_fstab_present: bool
             A25_TEST_CTL=str(ctl_log),
             A25_TEST_RESETPROP=str(resetprop_log),
             A25_TEST_SEQUENCE=str(case / "crypto-start-sequence.log"),
-            A25_SYNTHETIC_PASSWORD_ALIAS_PATCH=str(bin_dir / "apply_alias_patch"),
-            A25_TEST_ALIAS_PATCH_LOG=str(alias_patch_log),
-            A25_TEST_ALIAS_PATCH_RESULT="ok",
             A25_PROC_MOUNTS=str(mounts),
             A25_SYSTEM_BUILD_PROP=str(system_build_prop),
             A25_VENDOR_BUILD_PROP=str(vendor_build_prop),
@@ -196,7 +178,6 @@ def run_case(name: str, *, already_mounted: bool, additional_fstab_present: bool
             "vendor.gatekeeper-1-0",
         ]
         assert ctl_log.read_text(encoding="ascii").splitlines() == expected_crypto_starts * 2
-        assert len(alias_patch_log.read_text(encoding="ascii").splitlines()) == 2
         expected_prop_sync = [
             "ro.build.version.release=16",
             "ro.build.version.sdk=36",

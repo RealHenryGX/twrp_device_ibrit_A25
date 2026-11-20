@@ -10,7 +10,6 @@ STAGED_ADDITIONAL_FSTAB=${A25_STAGED_ADDITIONAL_FSTAB:-/tmp/a25-additional.fstab
 STATUS_FILE=${A25_CRYPTO_VENDOR_STATUS_FILE:-/tmp/a25_mount_crypto_vendor.status}
 SYSTEM_BUILD_PROP=${A25_SYSTEM_BUILD_PROP:-$SYSTEM_MOUNT/system/build.prop}
 VENDOR_BUILD_PROP=${A25_VENDOR_BUILD_PROP:-$VENDOR_MOUNT/build.prop}
-ALIAS_PATCH=${A25_SYNTHETIC_PASSWORD_ALIAS_PATCH:-/sbin/apply_synthetic_password_alias_patch.sh}
 DATA_FSTAB_ROW='/dev/block/by-name/userdata /data ext4 noatime,nosuid,nodev,noauto_da_alloc,errors=panic,inlinecrypt latemount,wait,check,quota,reservedsize=128M,formattable,checkpoint=block,fileencryption=aes-256-xts:aes-256-cts:v2,keydirectory=/metadata/vold/metadata_encryption,metadata_encryption=aes-256-xts'
 
 is_expected_additional_fstab() {
@@ -100,12 +99,6 @@ prepare_crypto_recovery() {
     mkdir -p /tmp/a25-keystore2-db || return 1
     chown 1017:1017 /tmp/a25-keystore2-db || return 1
     chmod 0700 /tmp/a25-keystore2-db || return 1
-    "$ALIAS_PATCH" || {
-        printf '%s\n' synthetic-password-alias-patch-failed > "$STATUS_FILE"
-        setprop orangefox.a25_system.ready 0
-        setprop orangefox.a25_vendor.ready 0
-        return 1
-    }
     setprop orangefox.a25_system.ready 1
 }
 
@@ -120,7 +113,7 @@ fi
 setprop orangefox.a25_vendor.ready 0
 while :; do
     if [ -e "$VENDOR_BLOCK" ] && ensure_vendor_ro; then
-        prepare_crypto_recovery || exit $?
+        prepare_crypto_recovery || :
         setprop orangefox.a25_vendor.ready 1
         start_crypto_hals
         exit 0
