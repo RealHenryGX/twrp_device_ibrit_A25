@@ -44,41 +44,52 @@ def main() -> int:
     fstab_path = ramdisk / "fstab.mt6765" if args.ramdisk_root else ROOT / "recovery/root/fstab.mt6765"
     require(fstab_path)
     fstab = fstab_path.read_text(encoding="utf-8")
-    gui_xml = ramdisk / "twres/ui.xml" if args.ramdisk_root else ROOT / "recovery/theme-a25-480x800/ui.xml"
+    gui_xml = ramdisk / "twres/ui.xml" if args.ramdisk_root else ROOT / "recovery/theme-a25-864x1920/ui.xml"
     require(gui_xml)
     try:
         gui_root = ET.parse(gui_xml).getroot()
     except ET.ParseError as exc:
         fail(f"A25 Recovery GUI XML is invalid: {exc}")
     resolution = gui_root.find("./details/resolution")
-    if resolution is None or resolution.attrib != {"width": "480", "height": "800"}:
-        fail("A25 Recovery GUI must use the verified 480x800 layout")
+    if resolution is None or resolution.attrib != {"width": "864", "height": "1920"}:
+        fail("A25 Recovery GUI must use the aspect-matched 864x1920 layout")
+    include_xml = {
+        node.attrib.get("name") for node in gui_root.findall("./include/xml")
+    }
+    required_includes = {
+        "/twres/resources/vars.xml",
+        "/twres/resources/images.xml",
+        "/twres/resources/styles.xml",
+        "/twres/pages/templates/base.xml",
+    }
+    if not required_includes.issubset(include_xml):
+        fail("A25 GUI must retain OrangeFox modular variables, images, styles, and templates")
+    include_xmlfile = {
+        node.attrib.get("name") for node in gui_root.findall("./include/xmlfile")
+    }
+    if "pages/recovery.xml" not in include_xmlfile:
+        fail("A25 GUI must include OrangeFox's recovery pages")
     if args.ramdisk_root:
-        stock_theme_xml = ROOT.parents[2] / "bootable/recovery/gui/theme/portrait_hdpi/ui.xml"
-        require(stock_theme_xml)
-        stock_theme_root = ET.parse(stock_theme_xml).getroot()
-        custom_images = {
-            node.attrib.get("name"): node.attrib.get("filename")
-            for node in gui_root.findall("./resources/image")
+        for relative in (
+            "resources/vars.xml",
+            "resources/images.xml",
+            "resources/styles.xml",
+            "pages/templates/base.xml",
+            "pages/recovery.xml",
+        ):
+            require(ramdisk / "twres" / relative)
+        variables_xml = ramdisk / "twres/resources/vars.xml"
+        variables_root = ET.parse(variables_xml).getroot()
+        variables = {
+            node.attrib.get("name"): node.attrib.get("value")
+            for node in variables_root.iter("variable")
         }
-        stock_images = {
-            node.attrib.get("name"): node.attrib.get("filename")
-            for node in stock_theme_root.findall("./resources/image")
-        }
-        incompatible = {
-            name: filename
-            for name, filename in custom_images.items()
-            if stock_images.get(name) != filename
-        }
-        if incompatible:
-            fail(
-                "A25 custom UI image resources are missing or map to different files "
-                f"in portrait_hdpi: {incompatible}"
-            )
+        if variables.get("screen_w") != "864" or variables.get("center_x") != "432":
+            fail("OrangeFox theme variables were not scaled to the 864-pixel canvas")
     if not args.ramdisk_root:
         board_config = (ROOT / "BoardConfig.mk").read_text(encoding="utf-8")
-        if "TW_THEME := portrait_hdpi" not in board_config or "TW_CUSTOM_THEME := device/ibrit/A25/recovery/theme-a25-480x800/ui.xml" not in board_config:
-            fail("A25 must load its 480x800 custom UI over the available portrait_hdpi image resources")
+        if "TW_THEME := portrait_hdpi" not in board_config or "TW_CUSTOM_THEME := device/ibrit/A25/recovery/theme-a25-864x1920/ui.xml" not in board_config:
+            fail("A25 must load its OrangeFox modular UI over the scaled portrait_hdpi theme")
     require(ramdisk / "init.recovery.usb.rc")
     usb_rc = (ramdisk / "init.recovery.usb.rc").read_text(encoding="utf-8")
 

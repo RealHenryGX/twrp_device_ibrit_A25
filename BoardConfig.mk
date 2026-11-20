@@ -103,9 +103,10 @@ PLATFORM_VERSION := 16.1.0
 
 # TWRP Configuration
 TW_THEME := portrait_hdpi
-# OrangeFox's android-12.1 checkout may omit the stock portrait_mdpi/ui.xml.
-# Keep its hdpi image resources, but load A25's compact 480x800 GUI XML.
-TW_CUSTOM_THEME := device/ibrit/A25/recovery/theme-a25-480x800/ui.xml
+# OrangeFox's android-12.1 theme is modular; keep its own resources/pages.
+# A25's 384x854 panel matches an 864x1920 virtual canvas. The build workflow
+# scales horizontal coordinates in portrait_hdpi from 1080 to 864.
+TW_CUSTOM_THEME := device/ibrit/A25/recovery/theme-a25-864x1920/ui.xml
 # OrangeFox consumes this Make variable to compile its built-in button unlock
 # default into data.cpp; keep it explicit instead of relying only on shell env.
 OF_USE_LOCKSCREEN_BUTTON := 1

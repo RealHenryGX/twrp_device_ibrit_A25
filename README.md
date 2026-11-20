@@ -1,9 +1,12 @@
 # Android device tree for iku A25 (A25)
 
-Recovery framebuffer is 384x854. `TW_THEME` selects the available
-`portrait_hdpi` image assets, while `TW_CUSTOM_THEME` supplies
-`recovery/theme-a25-480x800/ui.xml` with compact 480x800 coordinates and fonts.
-The build verifier checks the custom XML in source and in the built ramdisk.
+Recovery framebuffer is 384x854. OrangeFox uses a modular `portrait_hdpi` theme
+whose coordinates target 1080x1920. The build workflow scales its horizontal
+coordinates to an 864x1920 canvas, matching the panel aspect ratio, and
+`TW_CUSTOM_THEME` supplies the OrangeFox modular root UI at
+`recovery/theme-a25-864x1920/ui.xml`. Its pages, images, and styles continue to
+load from OrangeFox's built theme modules. The verifier checks the scaled
+dimensions and required modules in the built ramdisk.
 
 `recovery.fstab` is the TWRP-format table selected by `TARGET_RECOVERY_FSTAB`.
 OrangeFox stages it at `/system/etc/recovery.fstab`; `/etc/recovery.fstab`
@@ -216,7 +219,7 @@ Normal Android reports `ro.build.version.security_patch=2025-12-01` and `ro.vend
 
 ### Authorized Recovery evidence and display theme (2026-11-20)
 
-The user authorized inspection of current Recovery logs. Device identity in the capture is serial `0123456789ABCDEF`, product `A25`. The 384x854 framebuffer loaded the 1080x1920 `portrait_hdpi` UI, with GUI scaling factors 0.355556 horizontally and 0.444792 vertically. Build run `44738623259` confirmed that its OrangeFox source checkout lacks the default `portrait_mdpi/ui.xml`, so setting `TW_THEME := portrait_mdpi` fails Soong before compilation. The current layout fix keeps the available `portrait_hdpi` image resources and sets `TW_CUSTOM_THEME` to the checked-in 480x800 UI XML. Source and built-ramdisk verification now require that XML and resolution; a new Actions build is required before visual confirmation.
+The authorized Recovery capture is from serial `0123456789ABCDEF`, product `A25`. The 384x854 framebuffer loaded a 1080x1920 `portrait_hdpi` UI, scaling horizontally by 0.355556 and vertically by 0.444792. Actions run `44764145467` showed that the first custom UI was an old TWRP resource model and referenced image IDs absent from OrangeFox's modular resources. The current local layout correction uses OrangeFox's official modular root from its `fox_12.1` branch at `https://gitlab.com/OrangeFox/bootable/Recovery/-/raw/fox_12.1/gui/theme/portrait_hdpi/ui.xml`, sets an 864x1920 virtual canvas, and scales horizontal positions and widths by 0.8 in the OrangeFox theme during the build. Local transform and source checks pass. This correction is not pushed, built, or device-tested yet.
 
 The same Recovery capture mounted metadata-encrypted `/data` at `/dev/block/dm-3`; Keystore2 upgraded the metadata, unencrypted, and user 0 DE key blobs. Two user 0 credential checks reached Gatekeeper, which emitted `request reenroll` both times; Keystore2, Keymaster, and Gatekeeper remained running, with `keystore.crash_count=0`. CE decryption then failed in `unwrapSyntheticPasswordBlob`: the spblob v2/v3 path returned `KEY_NOT_FOUND` from Keystore2 `getKeyEntry`. There is no Signal 6/backtrace in this capture. This places the remaining failure after credential verification, at locating the CE spblob's KeyStore key; it does not yet identify why that alias is missing.
 
