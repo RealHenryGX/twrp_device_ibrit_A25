@@ -1,0 +1,73 @@
+--- a/Decrypt.cpp
++++ b/Decrypt.cpp
+@@ -441,6 +441,7 @@
+ 	* returning an empty string indicates an error */
+ 	std::string unwrapSyntheticPasswordBlob(const std::string& spblob_path, const std::string& handle_str, const userid_t user_id,
+ 		const void* application_id, const size_t application_id_size, uint32_t auth_token_len) {
++		property_set("orangefox.a25_ce.stage", "protector-blob");
+ 		printf("Attempting to unwrap synthetic password blob\n");
+ 		std::string disk_decryption_secret_key = "";
+ 
+@@ -448,7 +449,7 @@
+ 
+ 		// Read the data from the .spblob file per: https://android.googlesource.com/platform/frameworks/base/+/android-8.0.0_r23/services/core/java/com/android/server/locksettings/SyntheticPasswordManager.java#869
+ 		std::string spblob_data;
+-		if (!Get_Spblob_Data(spblob_path, handle_str, ".spblob", "spblob", &spblob_data))
++		if (!Get_Spblob_Data(spblob_path, handle_str, ".spblob", "spblob", &spblob_data) || spblob_data.size() <= 14)
+ 			return disk_decryption_secret_key;
+ 		unsigned char* byteptr = (unsigned char*)spblob_data.data();
+ 		if (*byteptr != SYNTHETIC_PASSWORD_VERSION_V2 && *byteptr != SYNTHETIC_PASSWORD_VERSION_V1
+@@ -504,10 +505,16 @@
+ 			ks2::KeyEntryResponse keyEntryResponse;
+ 			::ndk::SpAIBinder keystoreBinder(AServiceManager_checkService("android.system.keystore2.IKeystoreService/default"));
+ 			auto keystore = ks2::IKeystoreService::fromBinder(keystoreBinder);
++			if (!keystore) {
++				property_set("orangefox.a25_ce.stage", "keystore-unavailable");
++				return disk_decryption_secret_key;
++			}
++			property_set("orangefox.a25_ce.stage", "lookup-key");
+ 			auto rc = keystore->getKeyEntry(keyDescriptor(keystore_alias), &keyEntryResponse);
+ 			if (!rc.isOk()) {
+ 				auto error = unwrapError(rc);
+ 				if (ks2::ResponseCode(error) == ks2::ResponseCode::KEY_NOT_FOUND) {
++					property_set("orangefox.a25_ce.stage", "key-not-found");
+ 					printf("key not found\n");
+ 				} else {
+ 					printf("Failed to get key entry: %s\n", rc.getDescription().c_str());
+@@ -517,6 +524,9 @@
+ 			std::variant<int, ks2::KeyEntryResponse> response = keyEntryResponse;
+ 			auto keyResponse = std::get<ks2::KeyEntryResponse>(response);
+ 			ks2::CreateOperationResponse encOperationResponse;
++			property_set("orangefox.a25_ce.stage", "begin-operation");
++			if (!keyResponse.iSecurityLevel)
++				return disk_decryption_secret_key;
+ 			auto begin_rc = keyResponse.iSecurityLevel->createOperation(
+ 				keyResponse.metadata.key, begin_params.vector_data(), true,
+ 				&encOperationResponse);
+@@ -526,12 +536,18 @@
+ 			}
+ 			std::optional<std::vector<uint8_t>> optPlaintext;
+ 
++			property_set("orangefox.a25_ce.stage", "finish-operation");
++			if (!encOperationResponse.iOperation)
++				return disk_decryption_secret_key;
+ 			begin_rc = encOperationResponse.iOperation->finish(cipher_text_hidlvec, {}, &optPlaintext);
+ 			if (!begin_rc.isOk()) {
+ 				printf("finish reponse failed");
+ 				return disk_decryption_secret_key;
+ 			}
+ 
++			if (!optPlaintext || optPlaintext->size() <= 12)
++				return disk_decryption_secret_key;
++			property_set("orangefox.a25_ce.stage", "unwrap-protector");
+ 			size_t keystore_result_size = optPlaintext->size();
+ 			unsigned char* keystore_result = (unsigned char*)malloc(keystore_result_size);
+ 			if (!keystore_result) {
+@@ -640,6 +656,7 @@
+ // /* Decrypt_User_Synth_Pass is the TWRP C++ equivalent to spBasedDoVerifyCredential
+ //  * https://android.googlesource.com/platform/frameworks/base/+/android-8.0.0_r23/services/core/java/com/android/server/locksettings/LockSettingsService.java#1998 */
+ bool Decrypt_User_Synth_Pass(const userid_t user_id, const std::string& Password) {
++	property_set("orangefox.a25_ce.stage", "credential-or-protector");
+ 	printf("Attempting to decrypt user's synthetic password\n");
+ 	bool retval = false;
+ 	void* weaver_key = NULL;
