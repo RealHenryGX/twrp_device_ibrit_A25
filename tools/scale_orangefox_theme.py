@@ -68,6 +68,10 @@ def transform_file(path: Path, horizontal_variables: set[str]) -> bool:
             key = attr_match.group(1).strip().split("=")[0].strip()
             quote = attr_match.group(2)
             value = attr_match.group(3)
+            # Key widths and explicit row offsets share the keyboard artwork's
+            # coordinate system. The renderer applies the screen scale to both.
+            if tag_name == "keysize":
+                return attr_match.group(0)
             if key in ("x", "w", "width", "dx", "dw"):
                 value = scale_numbers(value)
             elif tag_name == "variable" and key == "value":
