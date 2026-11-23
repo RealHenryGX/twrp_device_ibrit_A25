@@ -1,0 +1,31 @@
+--- a/gui/scrolllist.cpp
++++ b/gui/scrolllist.cpp
+@@ -497,20 +497,24 @@
+ 
+ 	// render label text
+ 	if (mFont && mFont->GetResource()) {
+-		int textX = mRenderX + maxIconWidth + 5;
++		int textX = mRenderX + (groupStatus > 0 ? groupOffset : 0) + maxIconWidth + 5;
++		int textWidth = groupStatus > 0 ? mRenderW - groupOffset - 75 - textX : mRenderW;
++		if (textWidth < 1)
++			textWidth = 1;
++		int scaleText = groupStatus > 0 ? 1 : 0;
+ 		if (addtext != NULL) { //[f/d] draw 2 lines
+ 			int textY = yPos + (iconAndTextH / 2) - scale_theme_y(34);
+ 			int textYt = yPos + (iconAndTextH / 2) + scale_theme_y(24);
+-			gr_textEx_scaleW(textX, textY, text, mFont->GetResource(), mRenderW, TEXT_ONLY_RIGHT, 0);
++			gr_textEx_scaleW(textX, textY, text, mFont->GetResource(), textWidth, TEXT_ONLY_RIGHT, scaleText);
+ 
+ 			COLOR addtext_color = {0, 0, 0, 0};
+ 			ConvertStrToColor(DataManager::GetStrValue("text_secondary"), &addtext_color);
+ 
+ 			gr_color(addtext_color.red, addtext_color.green, addtext_color.blue, addtext_color.alpha); //[f/d] i'm lazy af so use #5F6368 color and don't allow set it using xml ಠ_ಠ
+-			gr_textEx_scaleW(textX, textYt, addtext, mFont->GetResource(), mRenderW, TEXT_ONLY_RIGHT, 0);
++			gr_textEx_scaleW(textX, textYt, addtext, mFont->GetResource(), textWidth, TEXT_ONLY_RIGHT, scaleText);
+ 		} else { //1 line
+ 			int textY = yPos + (iconAndTextH / 2);
+-			gr_textEx_scaleW(textX, textY, text, mFont->GetResource(), mRenderW, TEXT_ONLY_RIGHT, 0);
++			gr_textEx_scaleW(textX, textY, text, mFont->GetResource(), textWidth, TEXT_ONLY_RIGHT, scaleText);
+ 		}
+ 	}
+ }
