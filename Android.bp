@@ -7,3 +7,12 @@ cc_binary {
     srcs: ["recovery/a25_fscrypt_keyring.c"],
     recovery: true,
 }
+
+// Built only as a separate diagnostic artifact, not installed into recovery.
+cc_binary {
+    name: "a25_keystore_probe",
+    srcs: ["tools/a25_keystore_probe.c"],
+    sdk_version: "23",
+    stl: "none",
+    static_libs: ["libsqlite_static_minimal"],
+}
