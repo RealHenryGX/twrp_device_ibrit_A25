@@ -25,6 +25,7 @@ mounted_source() {
 ensure_vendor_ro() {
     block="$(readlink -f "$VENDOR_BLOCK")" || return 1
     actual="$(mounted_source)"
+    [ -n "$actual" ] && actual="$(readlink -f "$actual")"
     if [ "$actual" = "$block" ]; then
         return 0
     fi
@@ -38,6 +39,7 @@ ensure_vendor_ro() {
 ensure_system_ro() {
     block="$(readlink -f "$SYSTEM_BLOCK")" || return 1
     actual="$(awk -v target="$SYSTEM_MOUNT" '$2 == target { print $1; exit }' "$MOUNTS_FILE")"
+    [ -n "$actual" ] && actual="$(readlink -f "$actual")"
     if [ "$actual" = "$block" ]; then
         return 0
     fi
@@ -72,16 +74,19 @@ ensure_additional_fstab() {
 
 sync_crypto_build_properties() {
     resetprop_bin=${A25_RESETPROP:-$(command -v resetprop)}
-    [ -x "$resetprop_bin" ] || return 1
-    [ -f "$SYSTEM_BUILD_PROP" ] || return 1
+    [ -x "$resetprop_bin" ] || { printf '%s\n' sync-resetprop-unavailable > "$STATUS_FILE"; return 1; }
+    [ -f "$SYSTEM_BUILD_PROP" ] || { printf '%s\n' sync-system-build-prop-unavailable > "$STATUS_FILE"; return 1; }
     for key in ro.build.version.release ro.build.version.sdk ro.build.version.security_patch; do
         value="$(sed -n "s/^$key=//p" "$SYSTEM_BUILD_PROP" | head -n 1)"
-        [ -n "$value" ] || return 1
-        "$resetprop_bin" -n "$key" "$value" || return 1
+        [ -n "$value" ] || { printf 'sync-missing-%s\n' "$key" > "$STATUS_FILE"; return 1; }
+        "$resetprop_bin" -n "$key" "$value" || { printf 'sync-reset-failed-%s\n' "$key" > "$STATUS_FILE"; return 1; }
     done
     vendor_patch="$(sed -n 's/^ro.vendor.build.security_patch=//p' "$VENDOR_BUILD_PROP" | head -n 1)"
-    [ -n "$vendor_patch" ] || return 1
-    "$resetprop_bin" -n ro.vendor.build.security_patch "$vendor_patch"
+    [ -n "$vendor_patch" ] || { printf '%s\n' sync-vendor-patch-unavailable > "$STATUS_FILE"; return 1; }
+    "$resetprop_bin" -n ro.vendor.build.security_patch "$vendor_patch" || {
+        printf '%s\n' sync-reset-failed-vendor-patch > "$STATUS_FILE"
+        return 1
+    }
 }
 
 prepare_crypto_recovery() {
@@ -96,10 +101,7 @@ prepare_crypto_recovery() {
     mkdir -p /tmp/a25-keystore2-db || return 1
     chown 1017:1017 /tmp/a25-keystore2-db || return 1
     chmod 0700 /tmp/a25-keystore2-db || return 1
-    sync_crypto_build_properties || {
-        printf '%s\n' crypto-build-properties-sync-failed > "$STATUS_FILE"
-        return 1
-    }
+    sync_crypto_build_properties || return 1
     setprop orangefox.a25_system.ready 1
 }
 
