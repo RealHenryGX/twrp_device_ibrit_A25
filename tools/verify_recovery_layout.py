@@ -252,11 +252,12 @@ def main() -> int:
             line[1:] for line in patch_text.splitlines() if line.startswith("+") and not line.startswith("+++")
         )
     for token in (
-        "service keystore2 /system/bin/keystore2 /tmp/a25-keystore2-db",
+        "service keystore2 /system/bin/keystore2 /data/misc/keystore",
         "interface aidl android.system.keystore2.IKeystoreService/default",
         "user keystore",
         "group keystore",
         "setenv LD_LIBRARY_PATH /system/lib64:/system/lib64/vndk-sp:",
+        "setenv A25_KEYSTORE_READ_ONLY 1",
         "stdio_to_kmsg",
         "seclabel u:r:recovery:s0",
     ):
