@@ -90,6 +90,20 @@ def transform_file(path: Path, horizontal_variables: set[str]) -> bool:
     return True
 
 
+def normalize_list_icon_columns(theme_dir: Path) -> int:
+    """Scale literal list icon columns to the A25 virtual canvas."""
+    path = theme_dir / "resources/styles.xml"
+    original = path.read_text(encoding="utf-8")
+    updated = original
+    for style_name in ("btn_list", "group_list", "group_list_flat"):
+        pattern = rf'(<style name="{style_name}">.*?<iconsize w=")\d+(")'
+        updated = re.sub(pattern, rf'\g<1>173\g<2>', updated, count=1, flags=re.DOTALL)
+    if updated == original:
+        return 0
+    path.write_text(updated, encoding="utf-8", newline="\n")
+    return 1
+
+
 def verify(theme_dir: Path) -> None:
     xml_files = sorted(theme_dir.rglob("*.xml"))
     if not xml_files:
@@ -107,6 +121,13 @@ def verify(theme_dir: Path) -> None:
     }
     if variables.get("screen_w") != "864" or variables.get("center_x") != "432":
         raise ValueError("horizontal screen variables were not scaled to 864 pixels")
+    styles = (theme_dir / "resources/styles.xml").read_text(encoding="utf-8")
+    for style_name in ("btn_list", "group_list", "group_list_flat"):
+        match = re.search(
+            rf'<style name="{style_name}">(.*?)</style>', styles, re.DOTALL
+        )
+        if match is None or '<iconsize w="173"' not in match.group(1):
+            raise ValueError(f"{style_name} must use the scaled 173-unit icon column")
 
 
 def main() -> int:
@@ -130,6 +151,7 @@ def main() -> int:
         xml_files = sorted(theme_dir.rglob("*.xml"))
         horizontal_variables = read_horizontal_variables(xml_files)
         changed = sum(transform_file(path, horizontal_variables) for path in xml_files)
+        changed += normalize_list_icon_columns(theme_dir)
         verify(theme_dir)
         print(
             f"Scaled {changed} OrangeFox theme XML files; "

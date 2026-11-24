@@ -1,6 +1,6 @@
 --- a/gui/scrolllist.cpp
 +++ b/gui/scrolllist.cpp
-@@ -497,20 +497,24 @@
+@@ -497,20 +497,25 @@
  
  	// render label text
  	if (mFont && mFont->GetResource()) {
@@ -9,7 +9,8 @@
 +		int textWidth = groupStatus > 0 ? mRenderW - groupOffset - 75 - textX : mRenderW;
 +		if (textWidth < 1)
 +			textWidth = 1;
-+		int scaleText = groupStatus > 0 ? 1 : 0;
++		// Keep one consistent font size; the A25 theme narrows the icon column.
++		int scaleText = 0;
  		if (addtext != NULL) { //[f/d] draw 2 lines
  			int textY = yPos + (iconAndTextH / 2) - scale_theme_y(34);
  			int textYt = yPos + (iconAndTextH / 2) + scale_theme_y(24);
